@@ -161,7 +161,7 @@ http.createServer((req, res) => {
         if (b.ok && premi && !redeem(c, r.type)){ r.status = "rechazada"; bump(); return send(res, 400, { error:"Aquest client ja no té el premi disponible" }); }
         r.status = b.ok ? "aceptada" : "rechazada"; bump();
         if (b.ok && !premi) addStamp(c, r.type);
-        if (!b.ok) notifyClient(c.id, { title:"Gelats Karbu", body:premi ? "No s'ha pogut fer servir el premi. Pregunta a la barra." : "No hem pogut confirmar el segell. Pregunta a la barra.", url:"/#cliente" });
+        if (!b.ok) notifyClient(c.id, { title:"Gelats Karbu", body:premi ? "No s'ha pogut reclamar el premi. Pregunta a la barra." : "No hem pogut confirmar el segell. Pregunta a la barra.", url:"/#cliente" });
         return send(res, 200, panel());
       }
       if (P === "/api/neg/stamp"){ const c = DB.clients[b.id]; if (!c) return send(res, 404, { error:"Client no trobat" }); addStamp(c, b.type); return send(res, 200, panel()); }
