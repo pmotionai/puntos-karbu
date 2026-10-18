@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gelats Karbu · Targetes de punts</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#2F6F62">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Karbu">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Jost:wght@300;400;500;600&family=Pacifico&display=swap">
+<style>
+  :root{ --brown:#1F3B35; --brown-2:#2F6F62; --beige:#D3EEE3; --cream:#F6FBF8; --white:#fff; --line:#D2E6DC; --soft:#5D776E; --ok:#2E8B68; --mint:#CFEBDF; --cafe:#4B3428; --bubble:#2F6F62; --gelat:#C9567A; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--cream); color:var(--brown); font-family:'Jost',system-ui,sans-serif;}
+  .app{max-width:440px; margin:0 auto; padding:18px 16px 40px;}
+  .top{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .demo{font-size:10px; letter-spacing:.18em; text-transform:uppercase; border:1px solid var(--brown-2); padding:3px 8px; border-radius:99px; color:var(--brown-2);}
+  .tabs{display:flex; background:var(--beige); border-radius:99px; padding:4px; gap:4px;}
+  .tabs button{border:none; background:transparent; font:inherit; font-weight:500; padding:8px 14px; border-radius:99px; color:var(--brown); cursor:pointer;}
+  .tabs button.on{background:var(--brown); color:var(--white);}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:26px; margin:6px 0 2px;}
+  .muted{color:var(--soft); font-size:14px; margin:0;}
+
+  /* tarjeta tipo wallet */
+  .card{margin:18px 0; background:var(--brown); color:var(--beige); border-radius:22px; padding:20px; box-shadow:0 14px 30px rgba(30,94,54,.25);}
+  .card-head{display:flex; justify-content:space-between; align-items:flex-start;}
+  .card h2{font-family:'Fraunces',serif; font-weight:500; margin:0; font-size:22px; color:var(--white);}
+  .card small{font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.8;}
+  .stamps{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:18px 0 14px;}
+  .stamp{aspect-ratio:1; border-radius:50%; border:1.5px dashed rgba(232,220,200,.55); display:flex; align-items:center; justify-content:center; font-size:20px;}
+  .stamp.on{background:var(--beige); border:none; color:var(--brown); animation:pop .4s ease;}
+  @keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+  .progress{font-size:14px; color:var(--white);}
+  .card-foot{display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px; opacity:.85;}
+  .qr{width:54px; height:54px; background:var(--white); border-radius:8px; display:grid; grid-template-columns:repeat(7,1fr); padding:5px; gap:1px;}
+  .qr i{background:var(--brown);} .qr i.w{background:transparent;}
+
+  .wallet{display:flex; gap:8px;}
+  .wallet button{flex:1; border:none; border-radius:12px; padding:11px; font:inherit; font-weight:500; cursor:pointer; background:var(--brown); color:#fff;}
+  .wallet button.g{background:var(--white); color:#111; border:1px solid var(--line);}
+
+  .section{margin-top:22px;}
+  .section h3{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 10px;}
+  .reward{display:flex; justify-content:space-between; align-items:center; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:8px;}
+  .reward b{font-weight:500;} .reward span{font-size:13px; color:var(--soft);}
+  .pill{font-size:12px; padding:4px 10px; border-radius:99px; background:var(--beige);}
+  .pill.ok{background:#DCEDE3; color:var(--ok);}
+
+  .notif{display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:16px; padding:12px; margin-top:10px; box-shadow:0 8px 20px rgba(30,94,54,.10);}
+  .notif .ic{width:34px; height:34px; border-radius:9px; background:var(--brown); color:var(--beige); display:flex; align-items:center; justify-content:center; flex:none;}
+  .notif p{margin:2px 0 0; font-size:13.5px;} .notif strong{font-size:13px;}
+
+  /* negocio */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:16px 0;}
+  .stat{background:var(--white); border:1px solid var(--line); border-radius:14px; padding:10px;}
+  .stat b{display:block; font-family:'Fraunces',serif; font-size:22px; font-weight:600;}
+  .stat span{font-size:11px; color:var(--soft); text-transform:uppercase; letter-spacing:.06em;}
+  .box{background:var(--white); border:1px solid var(--line); border-radius:16px; padding:14px; margin-bottom:12px;}
+  .row{display:flex; gap:8px;}
+  input, textarea, select{font:inherit; color:var(--brown); border:1px solid var(--line); background:var(--cream); border-radius:10px; padding:10px 12px; width:100%;}
+  .btn{border:none; background:var(--brown); color:var(--white); font:inherit; font-weight:500; border-radius:10px; padding:10px 14px; cursor:pointer; white-space:nowrap;}
+  .btn.light{background:var(--beige); color:var(--brown);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  td, th{padding:8px 4px; border-bottom:1px solid var(--line); text-align:left;}
+  th{font-weight:500; color:var(--soft); font-size:11px; text-transform:uppercase; letter-spacing:.06em;}
+  .toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--brown); color:var(--white); padding:11px 16px; border-radius:12px; font-size:14px; opacity:0; transition:opacity .25s; pointer-events:none; max-width:90vw;}
+  .toast.show{opacity:1;}
+
+  /* QR del cliente y escáner */
+  .showqr{display:block; width:100%; margin-top:10px; border:1.5px solid var(--brown); background:transparent; color:var(--brown); font:inherit; font-weight:600; border-radius:12px; padding:13px; cursor:pointer;}
+  .qr{cursor:pointer;}
+  .scanbtn{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; border:none; background:var(--brown); color:var(--white); font:inherit; font-size:17px; font-weight:600; border-radius:16px; padding:18px; cursor:pointer; box-shadow:0 10px 24px rgba(30,94,54,.22);}
+  .scanbtn svg{width:26px; height:26px;}
+  .ov{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:18px;}
+  .ov.light{background:rgba(247,241,232,.97);}
+  .ov.dark{background:#0d0907;}
+  .qrbox{width:100%; max-width:360px; text-align:center;}
+  .qrbox canvas{width:250px; height:250px; max-width:100%; background:#fff; padding:14px; border-radius:20px; box-shadow:0 14px 30px rgba(30,94,54,.18); box-sizing:content-box;}
+  .code{font-family:'Fraunces',serif; font-size:26px; letter-spacing:.12em; margin:14px 0 4px;}
+  .timer{height:5px; background:var(--beige); border-radius:99px; overflow:hidden; margin:10px auto 6px; max-width:250px;}
+  .timer i{display:block; height:100%; background:var(--brown); width:100%;}
+  .close{position:absolute; top:calc(14px + env(safe-area-inset-top,0px)); right:14px; width:40px; height:40px; border-radius:50%; border:none; background:var(--beige); color:var(--brown); font-size:18px; cursor:pointer;}
+  .ov.dark .close{background:rgba(255,255,255,.14); color:#fff;}
+  .finder{position:relative; width:260px; height:260px; max-width:78vw; max-height:78vw; margin:0 auto;}
+  .finder canvas{position:absolute; inset:30px; width:calc(100% - 60px); height:calc(100% - 60px); opacity:.85; filter:blur(.4px); background:#fff; border-radius:8px;}
+  .finder .c{position:absolute; width:42px; height:42px; border:4px solid var(--beige);}
+  .finder .c1{top:0; left:0; border-right:none; border-bottom:none; border-radius:14px 0 0 0;}
+  .finder .c2{top:0; right:0; border-left:none; border-bottom:none; border-radius:0 14px 0 0;}
+  .finder .c3{bottom:0; left:0; border-right:none; border-top:none; border-radius:0 0 0 14px;}
+  .finder .c4{bottom:0; right:0; border-left:none; border-top:none; border-radius:0 0 14px 0;}
+  .finder .line{position:absolute; left:12px; right:12px; height:2px; background:#7FD1A0; box-shadow:0 0 12px #7FD1A0; animation:scan 1.4s ease-in-out infinite alternate;}
+  .finder.ok .c{border-color:#7FD1A0;}
+  .finder.ok .line{display:none;}
+  @keyframes scan{from{top:14px} to{top:calc(100% - 16px)}}
+  .scantxt{color:#E8DCC8; text-align:center; margin-top:22px; font-size:15px;}
+  .res{width:100%; max-width:400px; background:var(--cream); border-radius:22px; padding:20px;}
+  .res-head{display:flex; align-items:center; gap:12px;}
+  .avatar{width:48px; height:48px; border-radius:50%; background:var(--brown); color:var(--beige); display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-size:22px; flex:none;}
+  .mini{display:grid; grid-template-columns:repeat(10,1fr); gap:5px; margin:16px 0 8px;}
+  .mini i{aspect-ratio:1; border-radius:50%; border:1.5px dashed var(--line);}
+  .mini i.on{background:var(--brown); border:none;}
+  .free{background:#DCEDE3; color:var(--ok); border-radius:12px; padding:10px 12px; font-weight:500; margin:10px 0 0;}
+  .acts{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;}
+  .acts .btn{padding:14px; font-size:15px;}
+  .acts .wide{grid-column:1/-1;}
+  .btn.okb{background:var(--ok);}
+  .btn:disabled{opacity:.35; cursor:default;}
+  @media (prefers-reduced-motion:reduce){ .finder .line{animation:none; top:50%;} }
+  /* ===== Karbu: tres targetes, selector de producte i carta ===== */
+  .cards{display:flex; flex-direction:column; gap:14px; margin:16px 0;}
+  .cards .card{margin:0; padding:18px 18px 16px;}
+  .card.cafe{background:var(--cafe); box-shadow:0 14px 30px rgba(75,52,40,.25);}
+  .card.bubble{background:var(--bubble);}
+  .card.gelat{background:var(--gelat); box-shadow:0 14px 30px rgba(201,86,122,.25);}
+  .card .ttl{display:flex; align-items:center; gap:10px;}
+  .card .ttl .em{font-size:26px; line-height:1;}
+  .stamps.n6{grid-template-columns:repeat(6,1fr);} .stamps.n8{grid-template-columns:repeat(8,1fr); gap:7px;} .stamps.n10{grid-template-columns:repeat(5,1fr);}
+  .stamp{border-color:rgba(255,255,255,.45); font-size:18px;}
+  .stamp.on{background:var(--mint); color:var(--brown);}
+  .card .gift{display:inline-block; margin-top:8px; background:#fff; color:var(--brown); border-radius:99px; padding:5px 12px; font-size:13px; font-weight:600;}
+  .brandline{display:flex; align-items:center; gap:10px; margin:2px 0 0;}
+  .brandline img{width:44px; height:44px; border-radius:50%;}
+  .script{font-family:'Pacifico',cursive; font-weight:400; letter-spacing:0;}
+  .pick{position:fixed; inset:0; z-index:60; display:flex; align-items:flex-end; justify-content:center; background:rgba(16,40,32,.38);}
+  .pick .in{width:100%; max-width:480px; background:var(--cream); border-radius:22px 22px 0 0; padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px)); box-shadow:0 -10px 40px rgba(16,40,32,.2);}
+  .pick h3{font-family:'Fraunces',serif; font-weight:600; font-size:21px; margin:0 0 4px;}
+  .pick .opts{display:grid; gap:10px; margin-top:14px;}
+  .pick .opt{display:flex; align-items:center; gap:14px; width:100%; border:none; border-radius:16px; padding:16px; font:inherit; font-size:17px; font-weight:600; color:#fff; cursor:pointer; text-align:left;}
+  .pick .opt .em{font-size:30px;} .pick .opt small{display:block; font-weight:400; font-size:13px; opacity:.85;}
+  .pick .opt.cafe{background:var(--cafe);} .pick .opt.bubble{background:var(--bubble);} .pick .opt.gelat{background:var(--gelat);}
+  .menu details{background:var(--white); border:1px solid var(--line); border-radius:14px; padding:4px 14px; margin-bottom:8px;}
+  .menu summary{cursor:pointer; padding:10px 0; font-weight:500; list-style:none;} .menu summary::-webkit-details-marker{display:none;}
+  .menu summary::after{content:"＋"; float:right; color:var(--soft);} .menu details[open] summary::after{content:"－";}
+  .menu ul{list-style:none; margin:0 0 10px; padding:0;} .menu li{display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-top:1px dashed var(--line); font-size:14px;}
+  .menu li span:last-child{white-space:nowrap; font-weight:500;}
+  .menu .note{font-size:12px; color:var(--soft); margin:0 0 8px;}
+  .kind{display:inline-block; font-size:12px; padding:2px 8px; border-radius:99px; color:#fff; margin-right:4px;}
+  .kind.cafe{background:var(--cafe);} .kind.bubble{background:var(--bubble);} .kind.gelat{background:var(--gelat);}
+  .req .who span.kind{color:#fff; font-size:11.5px; margin-right:6px;}
+  .cnt{font-size:12.5px; white-space:nowrap;} .cnt b{font-weight:600;}
+  .rd{border:none; background:var(--mint); color:var(--brown); font:inherit; font-size:12px; font-weight:600; border-radius:99px; padding:4px 9px; margin:2px 2px 0 0; cursor:pointer;}
+  [hidden]{display:none!important;}
+  .stamp.on{animation:none;}
+  .stamp.on.new{animation:pop .5s ease;}
+  .qr{width:54px; height:54px; padding:4px; display:block;}
+  .live{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ok); margin:-6px 0 8px;}
+  .push{position:fixed; z-index:70; top:calc(10px + env(safe-area-inset-top,0px)); left:50%; width:calc(100% - 24px); max-width:420px; transform:translate(-50%,-150%); transition:transform .35s ease; display:flex; gap:10px; align-items:flex-start; background:var(--white); border:1px solid var(--line); border-radius:18px; padding:12px 14px; box-shadow:0 16px 36px rgba(30,94,54,.22); cursor:pointer;}
+  .push.show{transform:translate(-50%,0);}
+  .push .ic{width:38px; height:38px; border-radius:10px; background:var(--brown); color:var(--beige); display:flex; align-items:center; justify-content:center; flex:none; font-size:18px;}
+  .push small{color:var(--soft); font-size:12px;} .push p{margin:2px 0 0; font-size:14.5px;}
+  .resetbtn{display:block; margin:18px auto 0; background:none; border:none; color:var(--soft); font:inherit; font-size:13px; text-decoration:underline; cursor:pointer;}
+  input,textarea,select{font-size:16px!important;}
+
+  /* ===== apple-design: respuesta al pulsar, muelles, gestos y materiales (colores de Karbu) ===== */
+  button,.btn,.scanbtn,.req{touch-action:manipulation; -webkit-tap-highlight-color:transparent;}
+  button,.btn,.scanbtn{transition:transform 100ms ease-out, background-color .15s, color .15s;}
+  button:active,.btn:active{transform:scale(.97);}
+  .scanbtn:active{transform:scale(.98); box-shadow:0 4px 12px rgba(30,94,54,.22);}
+  h1{letter-spacing:-.02em; line-height:1.1;}
+  .card h2{letter-spacing:-.01em;}
+  .stamp.on, .stamp.on.new{animation:none;}
+  .stamp{will-change:transform;}
+  /* pestañas con indicador que se desliza */
+  .tabs{position:relative;}
+  .tabs .ind{position:absolute; top:4px; bottom:4px; left:0; width:0; border-radius:99px; background:var(--brown); will-change:transform,width;}
+  .tabs button{position:relative; z-index:1; transition:color .2s;}
+  .tabs button.on{background:transparent;}
+  /* aviso del móvil: material translúcido que se arrastra hacia arriba para quitarlo */
+  .push{transform:translate(-50%,-160%); transition:none; touch-action:none; user-select:none; will-change:transform;
+        background:rgba(255,255,255,.72); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); border-color:rgba(255,255,255,.6);}
+  .push.show{transform:translate(-50%,-160%);}
+  .push .grab{position:absolute; left:50%; bottom:5px; width:36px; height:4px; margin-left:-18px; border-radius:2px; background:rgba(30,94,54,.18);}
+  /* solicitudes: desliza a la derecha para aceptar, a la izquierda para rechazar */
+  .reqwrap{position:relative; overflow:hidden; border-top:1px solid var(--line);}
+  .reqwrap:first-of-type{border-top:none;}
+  .reqwrap .under{position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-weight:600; font-size:14px;}
+  .reqwrap .under .a{color:var(--ok);} .reqwrap .under .r{color:var(--soft);}
+  .reqwrap .req{border-top:none; background:var(--white); touch-action:pan-y; will-change:transform; cursor:grab;}
+  .swipehint{font-size:12px; color:var(--soft); margin:2px 0 4px;}
+  .ov{will-change:transform,opacity;}
+  @media (prefers-reduced-transparency:reduce){ .push{background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; border-color:var(--line);} }
+  @media (prefers-contrast:more){ .push{background:#fff; border:1.5px solid var(--brown);} }
+  /* hoja de «Añadir a la pantalla de inicio» (iPhone y navegadores sin instalación directa) */
+  .scrim{position:fixed; inset:0; z-index:80; background:rgba(16,40,26,.38); opacity:0;}
+  .sheet{position:fixed; z-index:81; left:0; right:0; bottom:0; margin:0 auto; max-width:480px; background:var(--cream); border-radius:22px 22px 0 0;
+         padding:10px 20px calc(22px + env(safe-area-inset-bottom,0px)); box-shadow:0 -10px 40px rgba(16,40,26,.18); touch-action:none; will-change:transform;}
+  .sheet .grip{width:40px; height:5px; border-radius:3px; background:var(--line); margin:0 auto 14px;}
+  .sheet h3{font-family:'Fraunces',serif; font-weight:600; font-size:21px; letter-spacing:-.01em; margin:0 0 4px;}
+  .steps{list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; counter-reset:s;}
+  .steps li{display:flex; gap:12px; align-items:center; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:12px 14px; font-size:15px;}
+  .steps li::before{counter-increment:s; content:counter(s); flex:none; width:28px; height:28px; border-radius:50%; background:var(--brown); color:var(--beige); display:grid; place-items:center; font-weight:600; font-size:14px;}
+  .steps li svg{width:22px; height:22px; flex:none; margin-left:auto; color:#0a84ff;}
+  .sheet .appicon{display:flex; gap:12px; align-items:center; margin-top:14px;}
+  .sheet .appicon img{width:52px; height:52px; border-radius:12px; box-shadow:0 4px 12px rgba(16,40,26,.2);}
+  .sheet .ok{width:100%; margin-top:16px; padding:14px; font-size:16px;}
+  /* marca de Karbu (logo real) */
+  .card{background:var(--bubble); box-shadow:0 14px 30px rgba(31,59,53,.22);}
+  .card .logo{display:block; height:46px; width:46px; border-radius:50%; margin:-2px 0 6px -2px; box-shadow:0 2px 8px rgba(0,0,0,.18);}
+  .stamp.on{color:var(--brown);}
+  /* Instagram arriba, siempre a la vista */
+  .hello{display:flex; align-items:flex-start; justify-content:space-between; gap:12px;}
+  .hello > div{min-width:0;}
+  .igmini{flex:none; display:flex; flex-direction:column; align-items:center; gap:4px; text-decoration:none; color:var(--brown); font-size:11.5px; font-weight:500; margin-top:4px; transition:transform 100ms ease-out; -webkit-tap-highlight-color:transparent;}
+  .igmini:active{transform:scale(.94);}
+  .igmini svg{width:46px; height:46px; padding:10px; border-radius:14px; color:#fff; background:linear-gradient(45deg,#F58529,#DD2A7B 50%,#8134AF); box-shadow:0 6px 16px rgba(221,42,123,.28);}
+  /* Instagram y reseñas */
+  .follow{display:flex; flex-direction:column; gap:8px;}
+  .igbtn{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--brown); background:var(--white); border:1px solid var(--line); border-radius:14px; padding:12px 14px; transition:transform 100ms ease-out; -webkit-tap-highlight-color:transparent;}
+  .igbtn:active{transform:scale(.98);}
+  .igbtn svg{width:30px; height:30px; flex:none; padding:5px; border-radius:9px; color:#fff; background:linear-gradient(45deg,#F58529,#DD2A7B 50%,#8134AF);}
+  .igbtn.rev svg{background:#FBBC04;}
+  .igbtn small{color:var(--soft); font-size:12.5px;}
+  .revcard{position:fixed; z-index:75; left:12px; right:12px; bottom:calc(14px + env(safe-area-inset-bottom,0px)); max-width:420px; margin:0 auto; background:var(--cream); border:1px solid var(--line); border-radius:22px; padding:18px; box-shadow:0 18px 40px rgba(16,40,26,.22); text-align:center; will-change:transform; touch-action:none;}
+  .revcard .stars{color:#FBBC04; font-size:24px; letter-spacing:4px;}
+  .revcard h3{font-family:'Fraunces',serif; font-weight:600; font-size:20px; margin:4px 0 6px; letter-spacing:-.01em;}
+  .revcard .row2{display:grid; grid-template-columns:1fr 1.4fr; gap:8px; margin-top:14px;}
+  .revcard .btn{padding:13px; font-size:15px; text-decoration:none; text-align:center;}
+  .installed{background:#DCEDE3; color:var(--ok); border-radius:12px; padding:11px; text-align:center; font-weight:500; flex:1;}
+  .waitbox{margin-top:12px; border:1.5px dashed var(--brown-2); border-radius:16px; padding:14px; text-align:center; background:var(--white);}
+  .waitbox .dot{width:10px; height:10px; border-radius:50%; background:var(--brown-2); display:inline-block; animation:bl 1s infinite; margin-right:6px;}
+  @keyframes bl{50%{opacity:.25}}
+  .reqs{border:2px solid var(--brown); border-radius:18px; padding:14px; background:var(--white); margin:14px 0;}
+  .reqs h3{margin:0 0 4px; font-family:'Fraunces',serif; font-weight:500; display:flex; align-items:center; gap:8px;}
+  .reqs .count{background:var(--brown); color:var(--white); font-family:'Jost',sans-serif; font-size:12px; border-radius:99px; padding:1px 8px;}
+  .req{display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--line);}
+  .req:first-of-type{border-top:none;}
+  .req .who{flex:1; min-width:0;} .req .who b{display:block; font-size:16px;} .req .who span{font-size:12.5px; color:var(--soft);}
+  .req .btn{padding:11px 14px; font-size:14.5px;}
+  .btn.okb{background:var(--ok);}
+  .btn.no{background:var(--beige); color:var(--brown);}
+  .counterqr{display:flex; gap:12px; align-items:center; margin-top:10px;}
+  .counterqr canvas{width:84px; height:84px; background:#fff; border-radius:10px; padding:6px; border:1px solid var(--line); flex:none;}
+  @media (prefers-reduced-motion:reduce){ .waitbox .dot{animation:none;} .finder .line{animation:none; top:50%;} }
+  /* ===== v2: registro, privacidad, PIN del negocio y QR real ===== */
+  .reg{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .reg .brand{background:var(--mint); border-radius:22px; padding:22px 18px; text-align:center; box-shadow:0 14px 30px rgba(31,59,53,.14);}
+  .reg .brand img{height:96px; width:96px; border-radius:50%;}
+  .reg .brand p{color:var(--brown); margin:10px 0 0; font-size:15px;}
+  .reg form{display:flex; flex-direction:column; gap:10px;}
+  .reg label.chk{display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.35;}
+  .reg label.chk input{width:22px; height:22px; flex:none; margin-top:1px; accent-color:var(--brown);}
+  .reg .big{padding:15px; font-size:17px; border-radius:14px;}
+  .linkbtn{background:none; border:none; color:var(--brown-2); font:inherit; font-size:14px; text-decoration:underline; cursor:pointer; padding:6px 0;}
+  .err{color:#B3261E; font-size:14px; margin:0;}
+  .legal{font-size:12.5px; color:var(--soft); line-height:1.45;}
+  .privsheet{max-height:62vh; overflow:auto; touch-action:pan-y; -webkit-overflow-scrolling:touch;}
+  .privsheet h4{margin:14px 0 4px; font-size:15px;}
+  .privsheet p,.privsheet li{font-size:14px; line-height:1.5; margin:0 0 6px;}
+  .cardno{font-size:11px; letter-spacing:.14em; opacity:.85; margin-top:10px; color:var(--white);}
+  .counterqr img{width:96px; height:96px; background:#fff; border-radius:10px; padding:6px; border:1px solid var(--line); flex:none; image-rendering:pixelated;}
+  .ctable td small{display:block; color:var(--soft); font-size:11.5px;}
+  .tag{display:inline-block; font-size:10.5px; padding:2px 7px; border-radius:99px; background:var(--beige); margin-left:4px; vertical-align:middle;}
+  .pin{max-width:280px; margin:30px auto; text-align:center; display:flex; flex-direction:column; gap:10px;}
+  .pin input{text-align:center; font-size:24px!important; letter-spacing:.4em;}
+  .footer-links{display:flex; flex-wrap:wrap; gap:4px 14px; justify-content:center; margin-top:26px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <span class="demo" id="modeTag">Demo · Gelats Karbu</span>
+    <div class="tabs" id="tabs"><i class="ind" id="tabInd" aria-hidden="true"></i><button id="tCli" class="on">Client</button><button id="tNeg">Barra</button></div>
+  </div>
+  <p class="live" id="live" hidden>● Connectat en directe</p>
+
+  <!-- ===== CLIENTE: registro (solo la primera vez) ===== -->
+  <section id="vReg" hidden>
+    <div class="reg">
+      <div class="brand"><img src="/logo.png" alt="Gelats Karbu · Mataró"><p>Les teves targetes de punts: ☕ cafès, 🧋 bubble tea i 🍦 gelats. Cada compra, un segell; quan l'omples, et convidem nosaltres.</p></div>
+      <form id="regForm" novalidate>
+        <h1 style="font-size:24px;margin:4px 0 0">Fes-te la targeta</h1>
+        <p class="muted">Només la primera vegada. Després, quan escanegis el QR del taulell, la targeta ja sabrà que ets tu.</p>
+        <input id="rName" placeholder="El teu nom" autocomplete="given-name" maxlength="40">
+        <input id="rTel" type="tel" inputmode="tel" placeholder="El teu mòbil (per recuperar la targeta)" autocomplete="tel" maxlength="16">
+        <label class="chk"><input type="checkbox" id="rPriv"><span>He llegit i accepto la <button type="button" class="linkbtn" data-priv style="padding:0">política de privacitat</button>.</span></label>
+        <label class="chk"><input type="checkbox" id="rOf"><span>Vull rebre ofertes i novetats de Gelats Karbu (opcional; et pots donar de baixa quan vulguis).</span></label>
+        <p class="err" id="rErr" hidden></p>
+        <button class="btn big" type="submit" id="rGo">Crear la meva targeta</button>
+        <p class="legal">Responsable: Gelats Karbu (Mataró). Finalitat: gestionar les teves targetes de punts i, si ho acceptes, enviar-te ofertes. Drets: accés, rectificació, supressió i oposició escrivint a Gelats Karbu. Més informació a la <button type="button" class="linkbtn" data-priv style="padding:0;font-size:12.5px">política de privacitat</button>.</p>
+      </form>
+      <button class="linkbtn" id="toLogin">Ja tens targeta? Entra amb el teu telèfon</button>
+      <form id="loginForm" hidden style="display:flex;flex-direction:column;gap:10px">
+        <input id="lTel" type="tel" inputmode="tel" placeholder="El teu mòbil" autocomplete="tel" maxlength="16">
+        <p class="err" id="lErr" hidden></p>
+        <button class="btn big" type="submit">Entrar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== CLIENTE: su tarjeta ===== -->
+  <section id="vCli" hidden>
+    <div class="hello">
+      <div><div class="brandline"><img src="/logo.png" alt=""><span class="script" style="font-size:20px">Gelats Karbu</span></div><h1 id="hi" style="margin-top:8px">Hola 🍦</h1>
+      <p class="muted">Les teves tres targetes, sempre al mòbil · La Riera 67, Mataró.</p></div>
+      <a class="igmini" id="igTop" href="https://www.instagram.com/gelatskarbu/" target="_blank" rel="noopener" aria-label="Segueix-nos a Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        <span>Segueix-nos</span>
+      </a>
+    </div>
+
+    <div class="cards" id="cards"></div>
+    <div class="cardno" id="cardNo" style="color:var(--soft);text-align:center;margin:-4px 0 12px"></div>
+
+    <button class="scanbtn" id="scanCounter">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10"/></svg>
+      Escaneja el QR del taulell
+    </button>
+    <div class="waitbox" id="waitBox" hidden><span class="dot"></span><b id="waitTxt">Esperant que la barra confirmi el teu segell…</b><p class="muted" style="margin:6px 0 0;font-size:13px">Quan te l'acceptin, apareix a la targeta.</p></div>
+
+    <div class="wallet" style="margin-top:10px">
+      <button id="wHome">📲 Afegir a la pantalla d'inici</button>
+    </div>
+    <div class="wallet" style="margin-top:8px">
+      <button class="g" id="pushCli" data-role="cliente">🔔 Activar avisos de segells i ofertes</button>
+    </div>
+
+    <div class="section">
+      <h3>Els teus premis</h3>
+      <div id="rewards"></div>
+    </div>
+    <div class="section menu">
+      <h3>La nostra carta</h3>
+      <p class="note">Preus al local (octubre 2026).</p>
+      <details open><summary>🍦 Gelats artesans</summary><ul>
+        <li><span>Terrina infantil (1 bola)</span><span>3,20 €</span></li><li><span>Terrina petita (2 boles)</span><span>4,20 €</span></li>
+        <li><span>Terrina mitjana (2 boles)</span><span>5,20 €</span></li><li><span>Terrina gran (3 boles)</span><span>6,50 €</span></li>
+        <li><span>Cucurutxo de neula mini · infantil · mitjà · gran</span><span>2,50 · 3,50 · 4,50 · 6,50 €</span></li>
+        <li><span>Neula cruixent</span><span>+1,20 €</span></li><li><span>Per emportar ½ litre · 1 litre</span><span>13 · 23 €</span></li></ul></details>
+      <details><summary>🧋 Bubble Fruit (WOW)</summary><ul>
+        <li><span>Banana Crush · Tropical Passion · Cherry Bomb · Red Bubble</span><span>500 ml</span></li>
+        <li><span>Passion Wave · Peach Pop · Passion Rush · Bubbly Blue</span><span>500 ml</span></li></ul>
+        <p class="note">Te verd o negre, sense teïna als de fruita.</p></details>
+      <details><summary>☕ Cafè i lattes</summary><ul>
+        <li><span>Cafè sol</span><span>1,50 €</span></li><li><span>Tallat</span><span>1,60 €</span></li><li><span>Cafè amb llet</span><span>2,20 €</span></li>
+        <li><span>Cafè affogato</span><span>3,50 €</span></li><li><span>Matcha latte · Chai latte</span><span>4,00 €</span></li>
+        <li><span>Frappés (cafè, caramel, xocolata, vainilla)</span><span>5,00 €</span></li></ul></details>
+      <details><summary>🥤 Begudes fresques</summary><ul>
+        <li><span>Orxata i granissats petita · mitjana · gran</span><span>3 · 4 · 5 €</span></li><li><span>Orxata o granissat 1 litre</span><span>9,00 €</span></li>
+        <li><span>Batut de gelat</span><span>5,50 €</span></li><li><span>Smoothies (strawberry banana, tropical mango, coconut, berry mix)</span><span>5,50 €</span></li></ul></details>
+      <details><summary>🥞 Crep, croffle i mini pancakes</summary><ul>
+        <li><span>Tria base + salsa (Lotus, Nutella, Kinder, festuc…) + toppings</span><span>5,00 €</span></li><li><span>Afegeix 1 bola de gelat</span><span>+1,50 €</span></li></ul></details>
+      <details><summary>🍰 Cheesecakes Karbu</summary><ul>
+        <li><span>Clàssica (sense gluten) · Lotus · Dinosaurus</span><span>per emportar</span></li></ul></details>
+    </div>
+    <div class="section">
+      <h3>Últims avisos</h3>
+      <div id="notifs"></div>
+    </div>
+
+    <div class="section follow">
+      <a class="igbtn" id="igLink" href="https://www.instagram.com/gelatskarbu/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        <span><b>Segueix-nos a Instagram</b><br><small>@gelatskarbu · novetats i sabors nous</small></span>
+      </a>
+      <a class="igbtn rev" href="https://www.google.com/maps/search/?api=1&amp;query=Helados%20Karbu%20La%20Riera%2067%20Matar%C3%B3" target="_blank" rel="noopener" id="revLink2">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>
+        <span><b>Deixa'ns una ressenya a Google</b><br><small>S'obre Google Maps · toca «Escriu una ressenya»</small></span>
+      </a>
+    </div>
+    <div class="footer-links">
+      <button class="linkbtn" data-priv>Privacitat</button>
+      <button class="linkbtn" id="ofToggle">Ofertes: —</button>
+      <button class="linkbtn" id="delMe">Esborrar les meves dades</button>
+    </div>
+  </section>
+
+  <!-- Petición de reseña: sube tras recibir un sello -->
+  <div class="revcard" id="revCard" role="dialog" aria-labelledby="revT" hidden>
+    <div class="stars" aria-hidden="true">★★★★★</div>
+    <h3 id="revT">T'ha agradat?</h3>
+    <p class="muted">Una ressenya a Google ens ajuda que més gent de Mataró ens conegui. S'obre Google Maps: toca «Escriu una ressenya».</p>
+    <div class="row2"><button class="btn light" id="revNo">Ara no</button><a class="btn" id="revYes" href="https://www.google.com/maps/search/?api=1&amp;query=Helados%20Karbu%20La%20Riera%2067%20Matar%C3%B3" target="_blank" rel="noopener">Deixar ressenya</a></div>
+  </div>
+
+  <!-- ===== NEGOCIO ===== -->
+  <section id="vPin" hidden>
+    <form class="pin" id="pinForm">
+      <h1 style="font-size:24px">Panell de Gelats Karbu</h1>
+      <p class="muted">Posa el PIN del negoci per veure els teus clients.</p>
+      <input id="pinIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="····">
+      <p class="err" id="pinErr" hidden>PIN incorrecte</p>
+      <button class="btn big" type="submit" style="padding:14px">Entrar</button>
+      <p class="legal">Demo: el PIN és 2580.</p>
+    </form>
+  </section>
+
+  <section id="vNeg" hidden>
+    <div class="brandline"><img src="/logo.png" alt=""><h1 style="margin:0">Panell de la barra</h1></div>
+    <p class="muted" style="margin-top:8px">No escanegeu res: el client escaneja el QR del taulell, tria si és cafè, bubble tea o gelat, i vosaltres només accepteu.</p>
+
+    <div class="reqs" id="reqs"></div>
+    <div class="wallet" style="margin:-4px 0 12px">
+      <button class="g" id="pushNeg" data-role="negocio">🔔 Avisar-me en aquest mòbil de cada segell</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="sCli">0</b><span>Clients</span></div>
+      <div class="stat"><b id="sVis">0</b><span>Visites mes</span></div>
+      <div class="stat"><b id="sRep">0%</b><span>Repeteixen</span></div>
+    </div>
+
+    <div class="box">
+      <h3 style="margin:0 0 4px;font-family:Fraunces,serif;font-weight:500">Enviar un avís</h3>
+      <p class="muted" style="margin:0 0 10px;font-size:13px">Només arriba als clients que van acceptar rebre ofertes (<b id="sOf">0</b>).</p>
+      <select id="seg" style="margin-bottom:8px">
+        <option value="todos">A tothom (els que van acceptar ofertes)</option>
+        <option value="dormidos">Als que fa 30 dies que no vénen</option>
+        <option value="top">Als 10 millors clients</option>
+      </select>
+      <textarea id="msg" rows="2">🧋 Aquest cap de setmana, doble segell de bubble tea. Us esperem a la Riera 67!</textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" id="send">Enviar l'avís</button></div>
+    </div>
+
+    <div class="box">
+      <h3 style="margin:0 0 6px;font-family:Fraunces,serif;font-weight:500">El vostre QR del taulell</h3>
+      <div class="counterqr"><img id="counterQr" alt="QR del taulell de Gelats Karbu">
+        <p class="muted" style="margin:0;font-size:13px">Imprimiu-lo i enganxeu-lo al costat de la caixa (o en una placa NFC). Sempre és el mateix: el client l'escaneja, tria el producte i us arriba la sol·licitud. Proveu-ho amb el mòbil.</p></div>
+    </div>
+
+    <div class="box">
+      <h3 style="margin:0 0 4px;font-family:Fraunces,serif;font-weight:500">Clients sense mòbil</h3>
+      <p class="muted" style="margin:0 0 10px;font-size:13px">Per a qui no fa servir el mòbil: el busqueu per nom, telèfon o nº de targeta i li sumeu el segell vosaltres.</p>
+      <input id="findQ" type="search" placeholder="Cerca per nom, telèfon o nº…" autocomplete="off" style="margin-bottom:8px">
+      <div class="row"><select id="who"></select></div><div class="row" style="margin-top:8px"><select id="whoType"><option value="cafe">☕ Cafè</option><option value="bubble">🧋 Bubble tea</option><option value="gelat">🍦 Gelat</option></select><button class="btn" id="addStamp">+1 segell</button></div>
+      <button class="btn light" id="newCliBtn" style="width:100%;margin-top:10px">＋ Afegir un client nou</button>
+      <form id="newCli" hidden style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+        <input id="ncName" placeholder="Nom (p. ex.: Montse Puig)" autocomplete="off" maxlength="40">
+        <input id="ncTel" type="tel" inputmode="tel" placeholder="Telèfon (opcional, per trobar-lo)" autocomplete="off" maxlength="16">
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px"><input id="ncPriv" type="checkbox" style="width:auto;margin-top:3px"> L'he informat de la política de privacitat i hi està d'acord</label>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px"><input id="ncOk" type="checkbox" style="width:auto;margin-top:3px"> Accepta rebre ofertes</label>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px"><input id="ncFirst" type="checkbox" checked style="width:auto;margin-top:3px"> Sumar-li ja el primer segell (del tipus triat a dalt)</label>
+        <div class="row"><button type="button" class="btn light" id="ncCancel">Cancel·lar</button><button class="btn" type="submit" style="flex:1">Donar d'alta</button></div>
+      </form>
+      <p class="free" id="ncDone" hidden></p>
+    </div>
+
+    <div class="box">
+      <h3 style="margin:0 0 6px;font-family:Fraunces,serif;font-weight:500">Clients</h3>
+      <table class="ctable"><thead><tr><th>Client</th><th>Segells</th><th>Visites</th><th>Última</th></tr></thead><tbody id="tbl"></tbody></table>
+      <p class="muted" id="noCli" style="margin-top:8px;font-size:13px">Encara no hi ha clients. S'apunten sols quan escanegen el QR, o els doneu d'alta aquí dalt.</p>
+    </div>
+    <button class="resetbtn" id="reset">Reiniciar la demo (esborra tots els clients)</button>
+    <button class="resetbtn" id="logoutNeg" style="margin-top:4px">Sortir del panell</button>
+  </section>
+</div>
+
+<!-- El cliente escanea el QR del mostrador (simulación dentro de la app) -->
+<div class="ov dark" id="scanOv" hidden>
+  <button class="close" id="scanX" aria-label="Tancar">✕</button>
+  <div style="width:100%">
+    <div class="finder" id="finder"><canvas id="scanC" width="400" height="400"></canvas><i class="c c1"></i><i class="c c2"></i><i class="c c3"></i><i class="c c4"></i><i class="line"></i></div>
+    <p class="scantxt" id="scanTxt">Apunta al QR del taulell…</p>
+  </div>
+</div>
+<div class="pick" id="pick" hidden role="dialog" aria-labelledby="pickT"><div class="in">
+  <h3 id="pickT">Què has pres avui?</h3><p class="muted">Tria a quina targeta va el segell.</p>
+  <div class="opts">
+    <button class="opt cafe" data-type="cafe"><span class="em">☕</span><span>Cafè<small>Cafè, tallat, lattes, frappés…</small></span></button>
+    <button class="opt bubble" data-type="bubble"><span class="em">🧋</span><span>Bubble tea<small>Bubble Fruit de 500 ml</small></span></button>
+    <button class="opt gelat" data-type="gelat"><span class="em">🍦</span><span>Gelat<small>Terrina, cucurutxo, batut…</small></span></button>
+  </div>
+  <button class="linkbtn" id="pickX" style="display:block;margin:12px auto 0">Cancel·lar</button>
+</div></div>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetT" hidden>
+  <div class="grip" aria-hidden="true"></div>
+  <div id="sheetInstall">
+    <h3 id="sheetT">Desa les targetes al mòbil</h3>
+    <p class="muted" id="sheetSub">Així l'obres com una app, sense descarregar res.</p>
+    <ol class="steps" id="sheetSteps"></ol>
+    <div class="appicon"><img src="/icon-180.png" alt=""><div><b>Karbu</b><br><span class="muted" style="font-size:13px">Apareixerà així a la pantalla d'inici</span></div></div>
+  </div>
+  <div id="sheetPriv" class="privsheet" hidden>
+    <h3>Política de privacitat</h3>
+    <p class="muted">Targetes de punts de Gelats Karbu · darrera actualització: octubre de 2026</p>
+    <h4>Qui tracta les teves dades</h4><p>Gelats Karbu, Carrer de la Riera 67, 08302 Mataró. NIF: [pendent]. Contacte: a la barra, al 606 74 85 45 o per Instagram @gelatskarbu.</p>
+    <h4>Quines dades</h4><p>El teu nom, el teu telèfon, els teus segells i visites i, si els actives, els avisos del mòbil. No demanem res més.</p>
+    <h4>Per a què</h4><p>Per gestionar les teves targetes de punts i els premis. I només si marques la casella, per enviar-te ofertes i novetats de Gelats Karbu.</p>
+    <h4>Base legal</h4><p>El teu consentiment en crear la targeta (i un altre, opcional, per a les ofertes). El pots retirar quan vulguis.</p>
+    <h4>Qui més les veu</h4><p>Ningú més. El servei el presta sírvelo (PmotionIA) com a encarregat del tractament, amb servidors a la Unió Europea (Frankfurt). No venem ni cedim les teves dades.</p>
+    <h4>Quant de temps</h4><p>Mentre tinguis la targeta. Si no la fas servir en 2 anys, l'esborrem.</p>
+    <h4>Els teus drets</h4><p>Accedir, corregir, esborrar, oposar-te i endur-te les dades. Ho pots esborrar tot tu mateix amb «Esborrar les meves dades», al final de la targeta, o demanar-ho a la barra. Si creus que no ho fem bé, pots reclamar davant l'Agència Espanyola de Protecció de Dades (aepd.es).</p>
+  </div>
+  <button class="btn ok" id="sheetOk">Entesos</button>
+</div>
+<div class="push" id="push" role="status"><div class="ic">🍦</div><div><small>Gelats Karbu · ara</small><p id="pushTxt"></p></div><i class="grab" aria-hidden="true"></i></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const toast = t => { const el=$("toast"); el.textContent=t; el.classList.add("show"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2800); };
+  const ls = { get:k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set:(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} }, del:k=>{ try{ localStorage.removeItem(k); }catch(e){} } };
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+  const api = (p, body, pin) => fetch(p, { method: body ? "POST" : "GET", cache:"no-store", headers: Object.assign({ "Content-Type":"application/json" }, pin ? { "x-pin":pin } : {}), body: body ? JSON.stringify(body) : undefined })
+    .then(async r => { const j = await r.json().catch(() => ({})); if (!r.ok){ const e = new Error(j.error || "Error"); e.status = r.status; e.body = j; throw e; } return j; });
+
+  /* ---------- física (skill apple-design): muelles interrumpibles, inercia y efecto goma ---------- */
+  const RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function spring(o){
+    const k = Math.pow(2*Math.PI/o.response, 2), c = 4*Math.PI*o.damping/o.response;
+    const range = Math.max(Math.abs(o.to - o.from), 1), eps = range * 0.002;
+    let x = o.from, v = o.v || 0, raf = 0, last = performance.now(), stopped = false;
+    const h = { get x(){ return x; }, get v(){ return v; }, stop(){ stopped = true; cancelAnimationFrame(raf); } };
+    if (RM){ x = o.to; o.update(x); o.done && o.done(); return h; }
+    function step(now){
+      if (stopped) return;
+      const dt = Math.min(.064, (now - last) / 1000); last = now;
+      const n = Math.max(1, Math.ceil(dt / .004)), s = dt / n;
+      for (let i = 0; i < n; i++){ const a = -k*(x - o.to) - c*v; v += a*s; x += v*s; }
+      if (Math.abs(x - o.to) < eps && Math.abs(v) < eps*10){ x = o.to; o.update(x); o.done && o.done(); return; }
+      o.update(x); raf = requestAnimationFrame(step);
+    }
+    raf = requestAnimationFrame(step); return h;
+  }
+  const project = (v, d=.998) => (v/1000) * d / (1 - d);
+  const rubber = (over, dim, c=.55) => (over*dim*c) / (dim + c*Math.abs(over));
+  function drag(el, axis, h){
+    let id = null, start = 0, other = 0, base = 0, hist = [], locked = false, moved = false;
+    el.addEventListener("pointerdown", e => {
+      if (e.target.closest("button,a,input,label,.privsheet")) return;
+      id = e.pointerId; start = axis === "x" ? e.clientX : e.clientY; other = axis === "x" ? e.clientY : e.clientX;
+      base = h.start(); hist = [{ p:start, t:e.timeStamp }]; locked = false; moved = false;
+    });
+    el.addEventListener("pointermove", e => {
+      if (e.pointerId !== id) return;
+      const p = axis === "x" ? e.clientX : e.clientY, q = axis === "x" ? e.clientY : e.clientX;
+      if (!locked){
+        if (Math.abs(q - other) > 10 && Math.abs(q - other) > Math.abs(p - start)){ id = null; h.cancel && h.cancel(); return; }
+        if (Math.abs(p - start) < 10) return;
+        locked = true; moved = true; try{ el.setPointerCapture(id); }catch(err){} h.lock && h.lock();
+      }
+      hist.push({ p, t:e.timeStamp }); if (hist.length > 6) hist.shift();
+      h.move(base + p - start);
+    });
+    const end = e => {
+      if (e.pointerId !== id) return; id = null;
+      if (!locked){ h.cancel && h.cancel(); return; }
+      const a = hist[0], b = hist[hist.length-1], dt = Math.max(1, b.t - a.t);
+      h.end((b.p - a.p) / dt * 1000);
+    };
+    el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
+    return { get moved(){ return moved; } };
+  }
+
+  const CARDS = { cafe:{ n:10, icon:"☕", nom:"Cafès", un:"cafè", premi:"Un cafè (sol, tallat o amb llet)" }, bubble:{ n:6, icon:"🧋", nom:"Bubble tea", un:"bubble tea", premi:"Un Bubble Fruit de 500 ml" }, gelat:{ n:8, icon:"🍦", nom:"Gelats", un:"gelat", premi:"Una terrina petita (2 boles)" } };
+  const TY = ["cafe","bubble","gelat"];
+  const st = (c, t) => ((c && c.st) || {})[t] || 0, fr = (c, t) => ((c && c.fr) || {})[t] || 0;
+  const ago = t => { if (!t) return "—"; const s = Math.max(0, Math.round((Date.now()-t)/1000)); if (s < 60) return `fa ${s} s`; if (s < 3600) return `fa ${Math.round(s/60)} min`; if (s < 86400) return `fa ${Math.round(s/3600)} h`; return `fa ${Math.round(s/86400)} dies`; };
+
+  /* ---------- vistas: #cliente, #negocio o las dos con pestañas ---------- */
+  let mode = "", tab = "cli";
+  let indX = null, indW = null, indSX = null, indSW = null;
+  function moveInd(btn, instant){
+    const ind = $("tabInd"); if (!btn.offsetWidth) return;
+    const tx = btn.offsetLeft, tw = btn.offsetWidth;
+    if (instant || indX === null){ indX = tx; indW = tw; ind.style.transform = `translateX(${tx}px)`; ind.style.width = tw+"px"; return; }
+    const vx = indSX ? indSX.v : 0, vw = indSW ? indSW.v : 0; indSX && indSX.stop(); indSW && indSW.stop();
+    indSX = spring({ from:indX, to:tx, v:vx, damping:1, response:.32, update:x=>{ indX = x; ind.style.transform = `translateX(${x}px)`; } });
+    indSW = spring({ from:indW, to:tw, v:vw, damping:1, response:.32, update:w=>{ indW = w; ind.style.width = w+"px"; } });
+  }
+  function views(){
+    const cli = tab === "cli", me = !!ls.get("cid"), pin = !!ls.get("pin");
+    $("tCli").classList.toggle("on", cli); $("tNeg").classList.toggle("on", !cli);
+    $("tCli").style.color = cli ? "#fff" : ""; $("tNeg").style.color = !cli ? "#fff" : "";
+    $("vReg").hidden = !(cli && !me); $("vCli").hidden = !(cli && me);
+    $("vPin").hidden = !(!cli && !pin); $("vNeg").hidden = !(!cli && pin);
+    if (!cli) RC.hidden = true;
+  }
+  function show(v, instant){ tab = v; views(); moveInd(v==="cli" ? $("tCli") : $("tNeg"), instant); if (v === "neg") pollNeg(); else pollMe(); }
+  function applyMode(){
+    mode = (location.hash||"").slice(1);
+    const only = mode==="cliente" || mode==="negocio";
+    $("tabs").hidden = only;
+    $("modeTag").textContent = mode==="cliente" ? "Gelats Karbu" : mode==="negocio" ? "Gelats Karbu · barra" : "Demo · Gelats Karbu";
+    show(mode==="negocio" ? "neg" : "cli", true);
+  }
+  $("tCli").addEventListener("pointerdown", ()=>show("cli")); $("tNeg").addEventListener("pointerdown", ()=>show("neg"));
+  $("tCli").onclick = ()=>show("cli"); $("tNeg").onclick = ()=>show("neg");
+  addEventListener("hashchange", applyMode);
+
+  /* ---------- QR: el del mostrador es real (apunta a esta tarjeta) ---------- */
+  const QR_URL = location.origin + "/?qr=mostrador";
+  try{ const q = qrcode(0, "M"); q.addData(QR_URL); q.make(); $("counterQr").src = q.createDataURL(6, 2); }catch(e){}
+  function drawQR(cv, seed){   // dibujo para la simulación del escáner
+    const N=25, ctx=cv.getContext("2d"), s=cv.width/N;
+    let x = 2166136261; for (const ch of seed) x = Math.imul(x ^ ch.charCodeAt(0), 16777619) >>> 0;
+    const rnd = () => { x ^= x<<13; x>>>=0; x ^= x>>>17; x ^= x<<5; x>>>=0; return x/4294967296; };
+    ctx.fillStyle="#fff"; ctx.fillRect(0,0,cv.width,cv.height); ctx.fillStyle="#123D22";
+    const finder = (cx,cy) => { ctx.fillRect(cx*s,cy*s,7*s,7*s); ctx.fillStyle="#fff"; ctx.fillRect((cx+1)*s,(cy+1)*s,5*s,5*s); ctx.fillStyle="#123D22"; ctx.fillRect((cx+2)*s,(cy+2)*s,3*s,3*s); };
+    const inF = (i,j) => (i<8&&j<8)||(i>N-9&&j<8)||(i<8&&j>N-9);
+    for (let i=0;i<N;i++) for (let j=0;j<N;j++) if (!inF(i,j) && rnd()<.5) ctx.fillRect(i*s,j*s,Math.ceil(s),Math.ceil(s));
+    finder(0,0); finder(N-7,0); finder(0,N-7);
+  }
+
+  /* ---------- sonido ---------- */
+  let ac = null;
+  document.addEventListener("pointerdown", () => { try{ ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); }catch(e){} });
+  function ding(){
+    if (!ac) return;
+    [[1568,0],[2093,.15],[2637,.3]].forEach(([f,t]) => { const o = ac.createOscillator(), g = ac.createGain(); o.type="triangle"; o.frequency.value=f;
+      const t0 = ac.currentTime + t; g.gain.setValueAtTime(.0001,t0); g.gain.exponentialRampToValueAtTime(.8,t0+.01); g.gain.exponentialRampToValueAtTime(.0001,t0+.45);
+      o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0+.5); });
+    try{ navigator.vibrate && navigator.vibrate([200,80,200]); }catch(e){}
+  }
+  function thock(){
+    if (!ac) return;
+    try{ const o = ac.createOscillator(), g = ac.createGain(), t0 = ac.currentTime;
+      o.type = "sine"; o.frequency.setValueAtTime(240, t0); o.frequency.exponentialRampToValueAtTime(90, t0 + .12);
+      g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(.5, t0 + .005); g.gain.exponentialRampToValueAtTime(.0001, t0 + .16);
+      o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + .2); }catch(e){}
+  }
+  // Aviso dentro de la tarjeta (solo si el cliente no tiene activados los avisos del móvil)
+  const P = $("push"); let py = 0, pSp = null, pHide = 0;
+  const pOff = () => -(P.offsetHeight + 30);
+  const pSet = y => { py = y; P.style.transform = `translate(-50%, ${y}px)`; };
+  pSet(-400);
+  function pTo(to, v, done){ pSp && pSp.stop(); pSp = spring({ from:py, to, v:v||0, damping:1, response:.35, update:pSet, done }); }
+  function pushNote(m){ $("pushTxt").textContent = m; if (py < pOff()) pSet(pOff()); pTo(0); try{ navigator.vibrate && navigator.vibrate([60,40,60]); }catch(e){} clearTimeout(pHide); pHide = setTimeout(() => pTo(pOff()), 4200); }
+  const pDrag = drag(P, "y", { start:() => { pSp && pSp.stop(); clearTimeout(pHide); return py; }, move:y => pSet(y > 0 ? rubber(y, 120) : y),
+    end:vel => { const land = py + project(vel); if (land < pOff()/2) pTo(pOff(), vel); else { pTo(0, vel); pHide = setTimeout(() => pTo(pOff()), 3000); } } });
+  P.addEventListener("click", () => { if (!pDrag.moved){ clearTimeout(pHide); pTo(pOff()); } });
+
+  /* ---------- hoja inferior (instalar / privacidad) ---------- */
+  const SH = $("sheet"), SC = $("scrim"); let shY = 0, shSp = null;
+  const shSet = y => { shY = y; SH.style.transform = `translateY(${y}px)`; SC.style.opacity = Math.max(0, 1 - y / (SH.offsetHeight || 1)); };
+  function shTo(to, v, done){ shSp && shSp.stop(); shSp = spring({ from:shY, to, v:v||0, damping:1, response:.35, update:shSet, done }); }
+  function openSheet(kind){
+    $("sheetInstall").hidden = kind !== "install"; $("sheetPriv").hidden = kind !== "priv";
+    if (kind === "install"){ const s = sheetSteps(); $("sheetSub").textContent = s.sub; $("sheetSteps").innerHTML = s.steps.map(t => `<li>${t}</li>`).join(""); }
+    SC.hidden = false; SH.hidden = false; shSet(SH.offsetHeight + 40); shTo(0);
+  }
+  function closeSheet(v){ const fin = () => { SH.hidden = true; SC.hidden = true; }; shTo(SH.offsetHeight + 40, v, fin); setTimeout(() => { if (shY > 0) fin(); }, 600); }
+  drag(SH, "y", { start:() => { shSp && shSp.stop(); return shY; }, move:y => shSet(y < 0 ? -rubber(-y, 80) : y),
+    end:v => { (shY + project(v) > SH.offsetHeight/3) ? closeSheet(v) : shTo(0, v); } });
+  SC.onclick = () => closeSheet(); $("sheetOk").onclick = () => closeSheet();
+  document.addEventListener("click", e => { if (e.target.closest("[data-priv]")){ e.preventDefault(); openSheet("priv"); } });
+
+  /* ================= CLIENTE ================= */
+  let me = null, myReq = null, gen = ls.get("gen") || "", shown = null, seenAv = null;
+  const saveCopy = () => { if (me){ ls.set("cid", me.id); ls.set("gen", gen); ls.set("copy", JSON.stringify(me)); } };
+  const qrScan = /[?&]qr=mostrador/.test(location.search), fromPush = /[?&]resena=1/.test(location.search);
+  if (qrScan || fromPush) history.replaceState(null, "", location.pathname + (location.hash || "#cliente"));
+  let wantStamp = qrScan;   // ha escaneado el QR de verdad: en cuanto sepamos quién es, pedimos el sello
+
+  function forget(msg){ ["cid","copy","gen","revDone","revAfter","seenStamps","pushCid"].forEach(ls.del); me = null; myReq = null; shown = null; views(); if (msg) toast(msg); }
+
+  // Registro
+  $("regForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("rName").value.trim(), tel = $("rTel").value, err = $("rErr"); err.hidden = true;
+    if (!name) { err.textContent = "Escriu el teu nom"; err.hidden = false; return; }
+    if (tel.replace(/\D/g,"").length < 9) { err.textContent = "Escriu un mòbil vàlid (9 xifres)"; err.hidden = false; return; }
+    if (!$("rPriv").checked) { err.textContent = "Per crear la targeta cal acceptar la política de privacitat"; err.hidden = false; return; }
+    $("rGo").disabled = true;
+    try{
+      const j = await api("/api/register", { name, tel, priv:true, ofertas:$("rOf").checked });
+      gen = j.gen; me = j.client; saveCopy(); views(); renderCli(); ensurePush(); toast(`Targeta creada, ${me.name}! 🍦`);
+      if (wantStamp) openPick();
+    }catch(x){
+      err.textContent = x.body && x.body.exists ? "Ja tens una targeta amb aquest mòbil: entra amb el telèfon aquí sota." : x.message; err.hidden = false;
+      if (x.body && x.body.exists){ $("loginForm").hidden = false; $("lTel").value = tel; }
+    }finally{ $("rGo").disabled = false; }
+  });
+  $("toLogin").onclick = () => { $("loginForm").hidden = false; $("lTel").focus(); };
+  $("loginForm").addEventListener("submit", async e => {
+    e.preventDefault(); const err = $("lErr"); err.hidden = true;
+    try{ const j = await api("/api/login", { tel:$("lTel").value }); gen = j.gen; me = j.client; saveCopy(); views(); renderCli(); ensurePush(); toast(`Hola de nou, ${me.name} 🍦`); if (wantStamp) openPick(); }
+    catch(x){ err.textContent = x.message; err.hidden = false; }
+  });
+
+  // El sello «cae» sobre la tarjeta
+  function stampIn(el){
+    el.style.opacity = "0"; thock(); try{ navigator.vibrate && navigator.vibrate(18); }catch(e){}
+    spring({ from:0, to:1, damping:.72, response:.38,
+      update:p => { el.style.opacity = Math.min(1, p*3); el.style.transform = `scale(${1.55 - .55*p}) rotate(${-14*(1-p)}deg)`; },
+      done:() => { el.style.transform = ""; el.style.opacity = ""; } });
+  }
+  // Reseña en Google: a todos por igual, sin premio a cambio; «Ahora no» la aplaza 5 sellos
+  const RC = $("revCard"); let rcY = 0, rcSp = null, rcT = 0;
+  const rcSet = y => { rcY = y; RC.style.transform = `translateY(${y}px)`; };
+  function rcTo(to, v, done){ rcSp && rcSp.stop(); rcSp = spring({ from:rcY, to, v:v||0, damping:1, response:.38, update:rcSet, done }); }
+  function hideReview(v){ rcTo(RC.offsetHeight + 40, v, () => { RC.hidden = true; }); setTimeout(() => { if (rcY > 0) RC.hidden = true; }, 700); }
+  function maybeAskReview(stamps){
+    if (ls.get("revDone") || stamps < (+ls.get("revAfter") || 1)) return;
+    clearTimeout(rcT); rcT = setTimeout(() => { if (!$("vCli").hidden && RC.hidden){ RC.hidden = false; rcSet(RC.offsetHeight + 40); rcTo(0); } }, 1800);
+  }
+  const reviewed = () => { ls.set("revDone", "1"); hideReview(); reSub(); };
+  $("revNo").onclick = () => { ls.set("revAfter", String((me ? me.stamps : 0) + 5)); hideReview(); };
+  $("revYes").addEventListener("click", reviewed); $("revLink2").addEventListener("click", reviewed);
+  drag(RC, "y", { start:() => { rcSp && rcSp.stop(); return rcY; }, move:y => rcSet(y < 0 ? -rubber(-y, 60) : y),
+    end:v => { if (rcY + project(v) > RC.offsetHeight/2){ ls.set("revAfter", String((me ? me.stamps : 0) + 5)); hideReview(v); } else rcTo(0, v); } });
+
+  function renderCli(){
+    if (!me) return;
+    $("hi").textContent = `Hola, ${me.name} 🍦`;
+    const fill = {};
+    $("cards").innerHTML = TY.map(t => { const K = CARDS[t], s0 = st(me, t), inC = s0 % K.n, f = fr(me, t), filled = inC === 0 && s0 > 0 && f > 0 ? K.n : inC; fill[t] = filled;
+      return `<div class="card ${t}"><div class="card-head"><div class="ttl"><span class="em">${K.icon}</span><div><h2>${K.nom}</h2><small>${K.n} segells = premi</small></div></div><img class="logo" src="/logo.png" alt="" style="height:38px;width:38px;margin:0"></div>
+        <div class="stamps n${K.n}" data-t="${t}">${Array.from({length:K.n},(_,i)=>`<div class="stamp ${i<filled?'on':''}">${i<filled?K.icon:''}</div>`).join("")}</div>
+        <div class="progress">${f>0 ? `🎉 Tens ${f>1 ? f+" premis" : "un premi"}: ${K.premi.toLowerCase()}. Demana'l a la barra!` : `Te'n falten ${K.n - inC} per ${K.premi.toLowerCase()}`}</div></div>`; }).join("");
+    if (shown) TY.forEach(t => { if (fill[t] > shown[t]) [...document.querySelector(`.stamps[data-t="${t}"]`).children].slice(shown[t], fill[t]).forEach((el, j) => setTimeout(() => stampIn(el), j*90)); });
+    shown = fill;
+    const seen = +ls.get("seenStamps") || 0;
+    if ((seen && me.stamps > seen) || (fromPush && !maybeAskReview.done)){ maybeAskReview.done = true; maybeAskReview(me.stamps); }
+    if (me.stamps !== seen) ls.set("seenStamps", String(me.stamps));
+    $("cardNo").textContent = `TARGETA Nº ${me.card} · ${me.stamps} segell${me.stamps===1?"":"s"} en total`;
+    $("rewards").innerHTML = TY.map(t => { const K = CARDS[t], inC = st(me, t) % K.n, f = fr(me, t);
+      return `<div class="reward"><div><b>${K.icon} ${K.premi}</b><br><span>Cada ${K.n} segells de ${K.un}</span></div>${f>0?`<span class="pill ok">Disponible${f>1?" ×"+f:""}</span>`:`<span class="pill">Falten ${K.n-inC}</span>`}</div>`; }).join("");
+    const last = (me.avisos || []).slice(-3).reverse();
+    $("notifs").innerHTML = last.length ? last.map(a=>`<div class="notif"><div class="ic">🍦</div><div><strong>Gelats Karbu</strong><p>${esc(a.m)}</p></div></div>`).join("") : `<p class="muted">Encara no tens avisos.</p>`;
+    const pend = myReq && myReq.status === "pendiente";
+    $("waitBox").hidden = !pend; $("scanCounter").hidden = pend;
+    if (pend){ const K = CARDS[myReq.type] || CARDS.cafe; $("waitTxt").textContent = `${K.icon} Esperant que la barra confirmi el segell de ${K.un}…`; }
+    $("ofToggle").textContent = me.ofertas ? "Ofertes: activades" : "Ofertes: desactivades";
+  }
+
+  async function requestStamp(type){
+    if (!me) return; wantStamp = false;
+    try{ const j = await api("/api/request", { id:me.id, type }); myReq = j.req; renderCli(); toast(`${CARDS[type].icon} Segell demanat: espera que el confirmin a la barra`); }
+    catch(x){ if (x.status === 410) forget("La teva targeta ja no existeix. Torna-la a crear."); else toast("Sense connexió: torna-ho a provar"); }
+  }
+  function openPick(){ wantStamp = false; if (!me) return; $("pick").hidden = false; }
+  $("pick").addEventListener("click", e => { const b = e.target.closest("[data-type]"); if (b){ $("pick").hidden = true; requestStamp(b.dataset.type); return; } if (e.target.id === "pick" || e.target.id === "pickX") $("pick").hidden = true; });
+
+  // Simulación del escáner dentro de la app (también puedes escanear el QR real con la cámara)
+  let scanT = [], ovSp = null, ovP = 0;
+  function ovAnim(open, done){
+    const ov = $("scanOv"), b = $("scanCounter").getBoundingClientRect();
+    ov.style.transformOrigin = `${b.left + b.width/2}px ${b.top + b.height/2}px`;
+    const v = ovSp ? ovSp.v : 0; ovSp && ovSp.stop();
+    ovSp = spring({ from:ovP, to:open ? 1 : 0, v, damping:1, response:.3,
+      update:p => { ovP = p; ov.style.opacity = Math.max(0, Math.min(1, p)); ov.style.transform = `scale(${.6 + .4*p})`; },
+      done:() => { ov.style.transform = ""; done && done(); } });
+  }
+  function closeScan(){ scanT.forEach(clearTimeout); const hide = () => { if (ovP < .5) $("scanOv").hidden = true; }; ovAnim(false, hide); setTimeout(() => { ovSp && ovSp.stop(); ovP = 0; hide(); }, 500); }
+  $("scanCounter").onclick = () => {
+    if (myReq && myReq.status === "pendiente") return;
+    $("scanOv").hidden = false; ovAnim(true); $("finder").classList.remove("ok"); $("scanTxt").textContent = "Apunta al QR del taulell…";
+    drawQR($("scanC"), "karbu-taulell"); scanT.forEach(clearTimeout);
+    scanT = [ setTimeout(()=>{ $("finder").classList.add("ok"); $("scanTxt").textContent = "✓ Gelats Karbu · QR llegit"; try{ navigator.vibrate && navigator.vibrate(80); }catch(e){} }, 1500),
+              setTimeout(()=>{ closeScan(); openPick(); }, 2000) ];
+  };
+  $("scanX").onclick = closeScan;
+
+  // Ofertas sí/no y borrar mis datos
+  $("ofToggle").onclick = () => toast("Per canviar-ho, demana-ho a la barra (a la versió final es canvia aquí mateix)");
+  let delArmed = false;
+  $("delMe").onclick = async () => {
+    if (!delArmed){ delArmed = true; $("delMe").textContent = "Torna a prémer per esborrar la targeta"; setTimeout(() => { delArmed = false; $("delMe").textContent = "Esborrar les meves dades"; }, 3500); return; }
+    try{ await api("/api/delete-me", { id:me.id }); }catch(e){}
+    forget("Hem esborrat la teva targeta i les teves dades");
+  };
+
+  // Sincronización con el servidor
+  let meVer = -1;
+  async function pollMe(){
+    if (tab !== "cli" || !ls.get("cid")) return;
+    try{
+      let copy = null; try{ copy = JSON.parse(ls.get("copy") || "null"); }catch(e){}
+      const j = await api("/api/me", { id:ls.get("cid"), gen, copy });
+      $("live").hidden = false;
+      const prevReq = myReq, prevAv = (me && me.avisos || []).map(a => a.id);
+      gen = j.gen; me = j.client; myReq = j.req; saveCopy();
+      if (!$("vCli").hidden && prevReq && prevReq.status === "pendiente" && myReq && myReq.id === prevReq.id && myReq.status !== "pendiente" && !phoneNotis())
+        pushNote(myReq.status === "aceptada" ? `${(CARDS[myReq.type]||CARDS.cafe).icon} +1 segell. Gràcies per venir!` : "No s'ha pogut confirmar el segell. Pregunta a la barra.");
+      else if (seenAv && !phoneNotis()){ const nw = (me.avisos || []).filter(a => !prevAv.includes(a.id)); if (nw.length) pushNote(nw[nw.length-1].m); }
+      seenAv = true; views(); renderCli(); ensurePush();
+      if (wantStamp) openPick();
+    }catch(x){
+      if (x.status === 410) forget(ls.get("copy") ? "La teva targeta ja no existeix. Torna-la a crear quan vulguis." : "");
+    }
+  }
+
+  /* ================= NEGOCIO ================= */
+  let pnl = null, swiping = false, lastPend = null;
+  const pin = () => ls.get("pin");
+  $("pinForm").addEventListener("submit", async e => {
+    e.preventDefault(); $("pinErr").hidden = true;
+    try{ pnl = await api("/api/neg/panel", null, $("pinIn").value); ls.set("pin", $("pinIn").value); $("pinIn").value = ""; views(); renderNeg(); }
+    catch(x){ $("pinErr").hidden = false; }
+  });
+  $("logoutNeg").onclick = () => { ls.del("pin"); pnl = null; views(); };
+
+  function bindSwipe(wrap){
+    const row = wrap.querySelector(".req"), id = row.dataset.id, ua = wrap.querySelector(".a"), ur = wrap.querySelector(".r");
+    let x = 0, sp = null;
+    const set = v => { x = v; row.style.transform = `translateX(${v}px)`; const w = wrap.offsetWidth*.4; ua.style.opacity = Math.max(0, Math.min(1, v/w)); ur.style.opacity = Math.max(0, Math.min(1, -v/w)); };
+    drag(row, "x", {
+      start: () => { sp && sp.stop(); return x; }, lock: () => { swiping = true; },
+      move: v => { const lim = wrap.offsetWidth; set(Math.abs(v) > lim ? Math.sign(v)*(lim + rubber(Math.abs(v)-lim, lim)) : v); },
+      cancel: () => {},
+      end: vel => {
+        const w = wrap.offsetWidth, land = x + project(vel), dir = land > w*.4 ? 1 : land < -w*.4 ? -1 : 0;
+        if (!dir){ sp = spring({ from:x, to:0, v:vel, damping:1, response:.3, update:set, done:()=>{ swiping = false; } }); return; }
+        let once = false; const fin = () => { if (once) return; once = true; swiping = false; decide(id, dir > 0); };
+        sp = spring({ from:x, to:dir*(w+40), v:vel, damping:1, response:.25, update:set, done:fin }); setTimeout(fin, 450);
+      }
+    });
+  }
+  function renderNeg(){
+    if (!pnl || swiping) return;
+    const pend = pnl.reqs;
+    $("reqs").innerHTML = `<h3>Segells per confirmar ${pend.length ? `<span class="count">${pend.length}</span>` : ""}</h3>` +
+      (pend.length ? `<p class="swipehint">Llisca → per acceptar · ← per rebutjar (o fes servir els botons)</p>` + pend.map(r => { const K = CARDS[r.type] || CARDS.cafe; return `<div class="reqwrap"><div class="under"><span class="a">✓ Acceptar</span><span class="r">Rebutjar ✕</span></div>
+        <div class="req" data-id="${esc(r.id)}"><div class="who"><b>${K.icon} ${esc(r.name)} · ${K.un}</b><span><span class="kind ${r.type}">${K.nom}</span>${ago(r.at)} · ${r.have % K.n}/${K.n}</span></div>
+        <button class="btn okb" data-ok="${esc(r.id)}">Acceptar</button><button class="btn no" data-no="${esc(r.id)}">No</button></div></div>`; }).join("")
+        : `<p class="muted" style="margin:6px 0 0;font-size:13.5px">No n'hi ha cap de pendent. Quan un client escanegi el QR del taulell, apareixerà aquí amb el producte i sonarà un avís.</p>`);
+    $("reqs").querySelectorAll(".reqwrap").forEach(bindSwipe);
+    const s = pnl.stats; $("sCli").textContent = s.clientes; $("sVis").textContent = s.visitasMes; $("sRep").textContent = s.repiten + "%"; $("sOf").textContent = s.conOfertas;
+    const L = pnl.clients;
+    $("noCli").hidden = L.length > 0;
+    $("tbl").innerHTML = L.map(c=>`<tr><td><b>${esc(c.name)}</b>${c.canal==="mostrador"?'<span class="tag">sense mòbil</span>':""}<small>${c.tel ? esc(c.tel) + " · " : ""}nº ${esc(c.card)}${c.ofertas ? " · ofertes ✓" : ""}</small></td><td>${TY.map(t => `<div class="cnt">${CARDS[t].icon} <b>${st(c,t) % CARDS[t].n}</b>/${CARDS[t].n}${fr(c,t) ? ` <button class="rd" data-rd="${esc(c.id)}:${t}">🎁 Bescanviar${fr(c,t)>1?" ×"+fr(c,t):""}</button>` : ""}</div>`).join("")}</td><td>${c.visits}</td><td>${ago(c.last)}</td></tr>`).join("");
+    const sel = $("who"), v = sel.value, q = ($("findQ").value||"").trim().toLowerCase().replace(/\s/g,"");
+    const F = L.filter(c => !q || (c.name.toLowerCase().replace(/\s/g,"") + (c.tel||"") + c.card).includes(q));
+    sel.innerHTML = F.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.tel ? " · " + esc(c.tel) : ""} · nº ${esc(c.card)}</option>`).join("") || `<option value="" disabled selected>${L.length ? "Ningú amb «" + esc(q) + "»" : "Encara no hi ha clients"}</option>`;
+    if (v && F.some(c => c.id === v)) sel.value = v;
+  }
+  async function negCall(p, body, okMsg){
+    try{ const j = await api(p, body, pin()); pnl = j; renderNeg(); if (okMsg) toast(typeof okMsg === "function" ? okMsg(j) : okMsg); return j; }
+    catch(x){ if (x.status === 401){ ls.del("pin"); views(); toast("Torna a posar el PIN"); } else toast(x.message || "Sense connexió"); }
+  }
+  function decide(id, ok){ try{ navigator.vibrate && navigator.vibrate(30); }catch(e){} return negCall("/api/neg/decide", { id, ok }, ok ? "Segell sumat 🍦" : "Sol·licitud rebutjada"); }
+  document.addEventListener("click", e => { const ok = e.target.closest("[data-ok]"), no = e.target.closest("[data-no]"); if (ok || no) decide(ok ? ok.dataset.ok : no.dataset.no, !!ok);
+    const rd = e.target.closest("[data-rd]"); if (rd){ const [id, t] = rd.dataset.rd.split(":"); negCall("/api/neg/redeem", { id, type:t }, `🎁 Premi bescanviat: ${CARDS[t].premi.toLowerCase()}`); } });
+  $("findQ").addEventListener("input", renderNeg);
+  $("addStamp").onclick = () => { const id = $("who").value; if (!id) return toast("Busca primer el client"); const c = pnl.clients.find(x => x.id === id), t = $("whoType").value; negCall("/api/neg/stamp", { id, type:t }, `${CARDS[t].icon} Segell sumat a ${c ? c.name : "el client"}`); };
+  $("newCliBtn").onclick = () => { $("newCli").hidden = false; $("newCliBtn").hidden = true; $("ncDone").hidden = true; $("ncName").focus(); };
+  $("ncCancel").onclick = () => { $("newCli").hidden = true; $("newCliBtn").hidden = false; };
+  $("newCli").addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("ncName").value.trim(); if (!name) return toast("Escriu el seu nom");
+    if (!$("ncPriv").checked) return toast("Abans, informa'l de la política de privacitat i marca la casella");
+    const j = await negCall("/api/neg/newclient", { name, tel:$("ncTel").value, ofertas:$("ncOk").checked, first:$("ncFirst").checked, type:$("whoType").value }, `${name} donat d'alta`);
+    if (!j || !j.created) return;
+    $("newCli").reset(); $("ncFirst").checked = true; $("newCli").hidden = true; $("newCliBtn").hidden = false; $("findQ").value = ""; renderNeg(); $("who").value = j.created.id;
+    $("ncDone").hidden = false; $("ncDone").textContent = `✓ ${j.created.name} donat d'alta · Targeta nº ${j.created.card}${j.created.stamps ? " · 1 segell" : ""}. Apunta el número a la seva targeta de cartró i la propera vegada busca'l per nom, telèfon o número.`;
+  });
+  $("send").onclick = () => { const m = $("msg").value.trim(); if (!m) return toast("Escriu l'avís");
+    negCall("/api/neg/broadcast", { m, seg:$("seg").value }, j => j.sent ? `Avís enviat a ${j.sent} client${j.sent>1?"s":""}` : "Cap client d'aquest grup ha acceptat rebre ofertes"); };
+  let armed = false;
+  $("reset").onclick = () => {
+    if (!armed){ armed = true; $("reset").textContent = "Torna a prémer: s'esborraran tots els clients"; setTimeout(() => { armed = false; $("reset").textContent = "Reiniciar la demo (esborra tots els clients)"; }, 3500); return; }
+    armed = false; $("reset").textContent = "Reiniciar la demo (esborra tots els clients)"; negCall("/api/neg/reset", {}, "Demo reiniciada: no hi ha clients");
+  };
+  async function pollNeg(){
+    if (tab !== "neg" || !pin()) return;
+    try{
+      const j = await api("/api/neg/panel", null, pin()); $("live").hidden = false;
+      const ids = j.reqs.map(r => r.id), nuevos = lastPend ? ids.filter(i => !lastPend.includes(i)) : [];
+      lastPend = ids; pnl = j; renderNeg();
+      if (nuevos.length && !pushOn("negocio")) ding();
+    }catch(x){ if (x.status === 401){ ls.del("pin"); views(); } }
+  }
+
+  /* ================= instalar, actualizar y avisos push ================= */
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const inApp = /Instagram|FBAN|FBAV|WhatsApp|Line\/|TikTok|; wv\)/i.test(ua);
+  const isSafari = isIOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  const standalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  let deferred = null;
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js", { updateViaCache:"none" }).catch(()=>{});
+  let build = null, reloading = false;
+  const hadSW = "serviceWorker" in navigator && !!navigator.serviceWorker.controller;
+  const busy = () => !$("scanOv").hidden || !$("pick").hidden || !SH.hidden || swiping || document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  async function checkVersion(){
+    try{ const v = await fetch("/api/version", { cache:"no-store" }).then(r => r.ok ? r.text() : null);
+      if (v && build && v !== build && !busy() && !reloading){ reloading = true; location.reload(); return; }
+      if (v) build = v; }catch(e){}
+  }
+  checkVersion();
+  document.addEventListener("visibilitychange", () => { if (document.hidden) return; checkVersion(); pollMe(); pollNeg();
+    navigator.serviceWorker && navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(()=>{}); });
+  if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadSW && !reloading && !busy()){ reloading = true; location.reload(); } });
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; });
+  addEventListener("appinstalled", () => { deferred = null; markInstalled(); toast("Fet! Ja tens Karbu a la pantalla d'inici 🍦"); });
+  function markInstalled(){ const w = $("wHome"); if (w) w.outerHTML = `<div class="installed" id="wHome">✓ Targetes desades al mòbil</div>`; }
+  if (standalone()) markInstalled();
+  const SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M6 11H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>';
+  const PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
+  const DOTS = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+  function sheetSteps(){
+    if (inApp) return { sub:"Ets dins d'una altra app (Instagram, WhatsApp…). Obre-la al navegador per poder-la desar:", steps:[`Toca els tres punts o el menú de dalt ${DOTS}`, `Tria «Obrir a ${isIOS ? "Safari" : "Chrome"}»`, "Torna a prémer «Afegir a la pantalla d'inici»"] };
+    if (isIOS && !isSafari) return { sub:"A l'iPhone només es pot desar des de Safari:", steps:["Copia aquest enllaç i obre'l a Safari", `Toca Compartir ${SHARE}`, `Tria «Afegir a la pantalla d'inici» ${PLUS}`] };
+    if (isIOS) return { sub:"Són dos tocs:", steps:[`Toca el botó Compartir de Safari, a baix ${SHARE}`, `Baixa i tria «Afegir a la pantalla d'inici» ${PLUS}`, "Prem «Afegir» a dalt a la dreta"] };
+    return { sub:"Des del menú del navegador:", steps:[`Toca el menú del navegador ${DOTS}`, `Tria «Afegir a la pantalla d'inici» o «Instal·lar l'aplicació» ${PLUS}`, "Confirma amb «Instal·lar» o «Afegir»"] };
+  }
+  document.addEventListener("click", async e => {
+    if (e.target.id !== "wHome" || standalone()) return;
+    if (deferred){ deferred.prompt(); const r = await deferred.userChoice.catch(()=>({})); deferred = null; if (r && r.outcome === "accepted") markInstalled(); return; }
+    openSheet("install");
+  });
+
+  const b64u = s => { const p = "=".repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g,"+").replace(/_/g,"/")); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+  const pushOK = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  const phoneNotis = () => pushOK && Notification.permission === "granted";   // con permiso, los avisos van SOLO al móvil
+  const pushOn = role => pushOK && Notification.permission === "granted" && (ls.get(role === "negocio" ? "pushNeg" : "pushCli") === "1" || ls.get("pushRole") === role);
+  function markPush(role){ const b = $(role === "negocio" ? "pushNeg" : "pushCli"); if (b){ b.textContent = role === "negocio" ? "🔔 Avisos de segells activats en aquest mòbil" : "🔔 Avisos activats"; b.disabled = true; } }
+  async function subscribe(role, test){
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub){ const key = await fetch("/api/vapid").then(r => { if (!r.ok) throw new Error("claves"); return r.text(); });
+      sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:b64u(key) }); }
+    await api("/api/subscribe", { sub, role, test, cid:ls.get("cid"), pin:pin(), reviewed:!!ls.get("revDone") });
+    ls.set(role === "negocio" ? "pushNeg" : "pushCli", "1"); if (role === "cliente") ls.set("pushCid", ls.get("cid") || ""); markPush(role);
+  }
+  function reSub(){ try{ if (pushOn("cliente")) subscribe("cliente", false).catch(()=>{}); }catch(e){} }
+  // Si el móvil ya dio permiso (aunque fuera con la versión anterior), se apunta solo con su tarjeta: nada que pulsar otra vez
+  function ensurePush(){ try{ if (pushOK && Notification.permission === "granted" && ls.get("cid") && ls.get("pushCid") !== ls.get("cid")){ ls.set("pushCid", ls.get("cid")); subscribe("cliente", false).catch(() => ls.del("pushCid")); } else if (pushOn("cliente")) markPush("cliente"); }catch(e){} }
+  async function enablePush(role){
+    if (isIOS && !standalone()){ toast("A l'iPhone, primer desa la targeta a la pantalla d'inici i activa'ls des d'allà"); openSheet("install"); return; }
+    if (!pushOK){ toast("Aquest navegador no admet avisos. Prova amb Chrome o Safari"); return; }
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted"){ toast("Sense permís no et podem avisar. Ho pots activar als ajustos del navegador"); return; }
+    try{ await subscribe(role, true); toast("Fet! Ara mateix et arribarà un avís de prova"); }
+    catch(e){ toast("No s'han pogut activar els avisos. Torna-ho a provar d'aquí a una estona"); }
+  }
+  $("pushCli").onclick = () => enablePush("cliente");
+  $("pushNeg").onclick = () => enablePush("negocio");
+  if (pushOK && Notification.permission === "granted"){
+    if (ls.get("cid")) subscribe("cliente", false).catch(()=>{});
+    if (ls.get("pushNeg") === "1" && pin()) subscribe("negocio", false).catch(()=>{});
+  }
+
+  /* ---------- arranque ---------- */
+  try{ me = JSON.parse(ls.get("copy") || "null"); }catch(e){ me = null; }
+  applyMode(); renderCli();
+  setInterval(pollMe, 2000); setInterval(pollNeg, 2000);
+  setInterval(() => { if (!$("vNeg").hidden) renderNeg(); }, 15000);
+})();
+</script>
+</body>
+</html>
