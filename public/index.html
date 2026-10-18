@@ -43,6 +43,7 @@
   .wallet{display:flex; gap:8px;}
   .wallet button{flex:1; border:none; border-radius:12px; padding:11px; font:inherit; font-weight:500; cursor:pointer; background:var(--brown); color:#fff;}
   .wallet button.g{background:var(--white); color:#111; border:1px solid var(--line);}
+  #sndNeg{border:2px solid var(--brown-2)!important; font-weight:600;} #sndNeg.on{background:#DCEDE3; color:var(--ok); border-color:#DCEDE3!important;}
 
   .section{margin-top:22px;}
   .section h3{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 10px;}
@@ -404,6 +405,9 @@
 
     <div class="reqs" id="reqs"></div>
     <div class="wallet" style="margin:-4px 0 12px">
+      <button class="g" id="sndNeg">🔇 Toca per activar el so de la barra</button>
+    </div>
+    <div class="wallet" style="margin:-4px 0 12px">
       <button class="g" id="pushNeg" data-role="negocio">🔔 Avisar-me en aquest mòbil de cada segell</button>
     </div>
 
@@ -612,14 +616,31 @@
 
   /* ---------- sonido ---------- */
   let ac = null;
-  document.addEventListener("pointerdown", () => { try{ ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); }catch(e){} });
-  function ding(){
-    if (!ac) return;
-    [[1568,0],[2093,.15],[2637,.3]].forEach(([f,t]) => { const o = ac.createOscillator(), g = ac.createGain(); o.type="triangle"; o.frequency.value=f;
-      const t0 = ac.currentTime + t; g.gain.setValueAtTime(.0001,t0); g.gain.exponentialRampToValueAtTime(.8,t0+.01); g.gain.exponentialRampToValueAtTime(.0001,t0+.45);
-      o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0+.5); });
-    try{ navigator.vibrate && navigator.vibrate([200,80,200]); }catch(e){}
+  // Campanetes en WAV reproduïdes amb <audio>: sonen encara que l'iPhone tingui el botó de silenci (el Web Audio no)
+  function wav(notes, vol){
+    const sr = 22050, len = Math.ceil(sr * (Math.max(...notes.map(n => n[1])) + .7)), d = new Float32Array(len);
+    notes.forEach(([f, t]) => { const s0 = Math.floor(t*sr); for (let i = 0; i < sr*.7 && s0+i < len; i++){ const x = i/sr, env = Math.min(1, x*120) * Math.exp(-x*6.5);
+      d[s0+i] += env * (Math.sin(2*Math.PI*f*x) + .35*Math.sin(2*Math.PI*f*2*x) + .12*Math.sin(2*Math.PI*f*3*x)); } });
+    const b = new ArrayBuffer(44 + len*2), v = new DataView(b), w = (o, t) => [...t].forEach((c, i) => v.setUint8(o+i, c.charCodeAt(0)));
+    w(0,"RIFF"); v.setUint32(4, 36+len*2, true); w(8,"WAVEfmt "); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+    v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,"data"); v.setUint32(40,len*2,true);
+    let m = 0; d.forEach(x => m = Math.max(m, Math.abs(x)));
+    d.forEach((x, i) => v.setInt16(44+i*2, Math.max(-1, Math.min(1, x/m*vol)) * 32767, true));
+    return URL.createObjectURL(new Blob([b], { type:"audio/wav" }));
   }
+  const CHIME = new Audio(wav([[1318,0],[1568,.13],[2093,.26],[2637,.39]], .95));   // barra: nou segell
+  const POP = new Audio(wav([[1568,0],[2093,.12]], .8));                               // client: segell rebut
+  [CHIME, POP].forEach(a => { a.preload = "auto"; a.setAttribute("playsinline", ""); });
+  let soundOK = false;
+  function unlockSound(){
+    try{ ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); }catch(e){}
+    if (soundOK) return;
+    [CHIME, POP].forEach(a => { a.muted = true; const p = a.play(); p && p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; soundOK = true; markSound(); }).catch(() => { a.muted = false; }); });
+  }
+  ["pointerdown","touchend","keydown"].forEach(ev => document.addEventListener(ev, unlockSound, { passive:true }));
+  function markSound(){ const b = $("sndNeg"); if (b){ b.textContent = "🔊 So activat: sonarà a cada segell"; b.classList.add("on"); } }
+  function play(a){ try{ a.currentTime = 0; const p = a.play(); p && p.catch(() => {}); }catch(e){} }
+  function ding(){ play(CHIME); try{ navigator.vibrate && navigator.vibrate([200,80,200]); }catch(e){} }
   function thock(){
     if (!ac) return;
     try{ const o = ac.createOscillator(), g = ac.createGain(), t0 = ac.currentTime;
@@ -852,6 +873,7 @@
       $("live").hidden = false;
       const prevReq = myReq, prevAv = (me && me.avisos || []).map(a => a.id);
       gen = j.gen; me = j.client; myReq = j.req; saveCopy();
+      if (!$("vCli").hidden && prevReq && prevReq.status === "pendiente" && myReq && myReq.id === prevReq.id && myReq.status === "aceptada") play(POP);
       if (!$("vCli").hidden && prevReq && prevReq.status === "pendiente" && myReq && myReq.id === prevReq.id && myReq.status !== "pendiente" && !phoneNotis())
         pushNote(myReq.status === "aceptada" ? `${(CARDS[myReq.type]||CARDS.cafe).icon} +1 segell. Gràcies per venir!` : "No s'ha pogut confirmar el segell. Pregunta a la barra.");
       else if (seenAv && !phoneNotis()){ const nw = (me.avisos || []).filter(a => !prevAv.includes(a.id)); if (nw.length) pushNote(nw[nw.length-1].m); }
@@ -939,7 +961,7 @@
       const j = await api("/api/neg/panel", null, pin()); $("live").hidden = false;
       const ids = j.reqs.map(r => r.id), nuevos = lastPend ? ids.filter(i => !lastPend.includes(i)) : [];
       lastPend = ids; pnl = j; renderNeg();
-      if (nuevos.length && !pushOn("negocio")) ding();
+      if (nuevos.length) ding();
     }catch(x){ if (x.status === 401){ ls.del("pin"); views(); } }
   }
 
@@ -1008,6 +1030,7 @@
   }
   $("pushCli").onclick = () => enablePush("cliente");
   $("pushNeg").onclick = () => enablePush("negocio");
+  $("sndNeg").onclick = () => { unlockSound(); setTimeout(() => { ding(); markSound(); }, 150); };
   if (pushOK && Notification.permission === "granted"){
     if (ls.get("cid")) subscribe("cliente", false).catch(()=>{});
     if (ls.get("pushNeg") === "1" && pin()) subscribe("negocio", false).catch(()=>{});
