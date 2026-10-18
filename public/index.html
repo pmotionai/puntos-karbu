@@ -146,12 +146,6 @@
   .pick .opt{display:flex; align-items:center; gap:14px; width:100%; border:none; border-radius:16px; padding:16px; font:inherit; font-size:17px; font-weight:600; color:#fff; cursor:pointer; text-align:left;}
   .pick .opt .em{font-size:30px;} .pick .opt small{display:block; font-weight:400; font-size:13px; opacity:.85;}
   .pick .opt.cafe{background:var(--cafe);} .pick .opt.bubble{background:var(--bubble);} .pick .opt.gelat{background:var(--gelat);}
-  .menu details{background:var(--white); border:1px solid var(--line); border-radius:14px; padding:4px 14px; margin-bottom:8px;}
-  .menu summary{cursor:pointer; padding:10px 0; font-weight:500; list-style:none;} .menu summary::-webkit-details-marker{display:none;}
-  .menu summary::after{content:"＋"; float:right; color:var(--soft);} .menu details[open] summary::after{content:"－";}
-  .menu ul{list-style:none; margin:0 0 10px; padding:0;} .menu li{display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-top:1px dashed var(--line); font-size:14px;}
-  .menu li span:last-child{white-space:nowrap; font-weight:500;}
-  .menu .note{font-size:12px; color:var(--soft); margin:0 0 8px;}
   .kind{display:inline-block; font-size:12px; padding:2px 8px; border-radius:99px; color:#fff; margin-right:4px;}
   .kind.cafe{background:var(--cafe);} .kind.bubble{background:var(--bubble);} .kind.gelat{background:var(--gelat);}
   .req .who span.kind{color:#fff; font-size:11.5px; margin-right:6px;}
@@ -336,30 +330,6 @@
     <div class="section">
       <h3>Els teus premis</h3>
       <div id="rewards"></div>
-    </div>
-    <div class="section menu">
-      <h3>La nostra carta</h3>
-      <p class="note">Preus al local (octubre 2026).</p>
-      <details open><summary>🍦 Gelats artesans</summary><ul>
-        <li><span>Terrina infantil (1 bola)</span><span>3,20 €</span></li><li><span>Terrina petita (2 boles)</span><span>4,20 €</span></li>
-        <li><span>Terrina mitjana (2 boles)</span><span>5,20 €</span></li><li><span>Terrina gran (3 boles)</span><span>6,50 €</span></li>
-        <li><span>Cucurutxo de neula mini · infantil · mitjà · gran</span><span>2,50 · 3,50 · 4,50 · 6,50 €</span></li>
-        <li><span>Neula cruixent</span><span>+1,20 €</span></li><li><span>Per emportar ½ litre · 1 litre</span><span>13 · 23 €</span></li></ul></details>
-      <details><summary>🧋 Bubble Fruit (WOW)</summary><ul>
-        <li><span>Banana Crush · Tropical Passion · Cherry Bomb · Red Bubble</span><span>500 ml</span></li>
-        <li><span>Passion Wave · Peach Pop · Passion Rush · Bubbly Blue</span><span>500 ml</span></li></ul>
-        <p class="note">Te verd o negre, sense teïna als de fruita.</p></details>
-      <details><summary>☕ Cafè i lattes</summary><ul>
-        <li><span>Cafè sol</span><span>1,50 €</span></li><li><span>Tallat</span><span>1,60 €</span></li><li><span>Cafè amb llet</span><span>2,20 €</span></li>
-        <li><span>Cafè affogato</span><span>3,50 €</span></li><li><span>Matcha latte · Chai latte</span><span>4,00 €</span></li>
-        <li><span>Frappés (cafè, caramel, xocolata, vainilla)</span><span>5,00 €</span></li></ul></details>
-      <details><summary>🥤 Begudes fresques</summary><ul>
-        <li><span>Orxata i granissats petita · mitjana · gran</span><span>3 · 4 · 5 €</span></li><li><span>Orxata o granissat 1 litre</span><span>9,00 €</span></li>
-        <li><span>Batut de gelat</span><span>5,50 €</span></li><li><span>Smoothies (strawberry banana, tropical mango, coconut, berry mix)</span><span>5,50 €</span></li></ul></details>
-      <details><summary>🥞 Crep, croffle i mini pancakes</summary><ul>
-        <li><span>Tria base + salsa (Lotus, Nutella, Kinder, festuc…) + toppings</span><span>5,00 €</span></li><li><span>Afegeix 1 bola de gelat</span><span>+1,50 €</span></li></ul></details>
-      <details><summary>🍰 Cheesecakes Karbu</summary><ul>
-        <li><span>Clàssica (sense gluten) · Lotus · Dinosaurus</span><span>per emportar</span></li></ul></details>
     </div>
     <div class="section">
       <h3>Últims avisos</h3>
