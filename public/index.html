@@ -51,6 +51,10 @@
   .reward b{font-weight:500;} .reward span{font-size:13px; color:var(--soft);}
   .pill{font-size:12px; padding:4px 10px; border-radius:99px; background:var(--beige);}
   .pill.ok{background:#DCEDE3; color:var(--ok);}
+  .rgo{display:flex; flex-direction:column; align-items:flex-end; gap:6px;}
+  .rbtn{border:none; border-radius:99px; background:var(--brown); color:var(--white); font:inherit; font-size:14px; font-weight:500; padding:9px 16px; min-height:40px; cursor:pointer;}
+  .rbtn:active{transform:scale(.96);} .rbtn:disabled{opacity:.5;}
+  .req.premi .who b{color:var(--ok);}
 
   .notif{display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:16px; padding:12px; margin-top:10px; box-shadow:0 8px 20px rgba(30,94,54,.10);}
   .notif .ic{width:34px; height:34px; border-radius:9px; background:var(--brown); color:var(--beige); display:flex; align-items:center; justify-content:center; flex:none;}
@@ -807,7 +811,7 @@
       const el = W.el[t], box = el.querySelector(".stamps");
       if (!shown || shown[t] !== filled || !box.children.length) box.innerHTML = Array.from({length:K.n},(_,i)=>`<div class="stamp ${i<filled?'on':''}">${i<filled?K.icon:''}</div>`).join("");
       el.querySelector(".cntp").textContent = f > 0 ? "🎁 Premi!" : `${inC}/${K.n}`;
-      el.querySelector(".progress").textContent = f>0 ? `🎉 Tens ${f>1 ? f+" premis" : "un premi"}: ${K.premi.toLowerCase()}. Demana'l a la barra!` : `Te'n falten ${K.n - inC} per ${K.premi.toLowerCase()}`;
+      el.querySelector(".progress").textContent = f>0 ? `🎉 Tens ${f>1 ? f+" premis" : "un premi"}: ${K.premi.toLowerCase()}. Toca «Bescanviar» a Els teus premis.` : `Te'n falten ${K.n - inC} per ${K.premi.toLowerCase()}`;
     });
     if (shown) TY.forEach(t => { if (fill[t] > shown[t]) [...W.el[t].querySelector(".stamps").children].slice(shown[t], fill[t]).forEach((el, j) => setTimeout(() => stampIn(el), j*90)); });
     shown = fill;
@@ -816,13 +820,17 @@
     if ((seen && me.stamps > seen) || (fromPush && !maybeAskReview.done)){ maybeAskReview.done = true; maybeAskReview(me.stamps); }
     if (me.stamps !== seen) ls.set("seenStamps", String(me.stamps));
     $("cardNo").textContent = `TARGETA Nº ${me.card} · ${me.stamps} segell${me.stamps===1?"":"s"} en total`;
+    const pendPremi = myReq && myReq.status === "pendiente" && myReq.kind === "premi";
     $("rewards").innerHTML = TY.map(t => { const K = CARDS[t], inC = st(me, t) % K.n, f = fr(me, t);
-      return `<div class="reward"><div><b>${K.icon} ${K.premi}</b><br><span>Cada ${K.n} segells de ${K.un}</span></div>${f>0?`<span class="pill ok">Disponible${f>1?" ×"+f:""}</span>`:`<span class="pill">Falten ${K.n-inC}</span>`}</div>`; }).join("");
+      const go = f > 0 ? `<div class="rgo"><span class="pill ok">Disponible ×${f}</span><button class="rbtn" data-redeem="${t}" ${pendPremi ? "disabled" : ""}>🎁 Bescanviar</button></div>` : `<span class="pill">Falten ${K.n-inC}</span>`;
+      return `<div class="reward"><div><b>${K.icon} ${K.premi}</b><br><span>Cada ${K.n} segells de ${K.un}</span></div>${go}</div>`; }).join("");
     const last = (me.avisos || []).slice(-3).reverse();
     $("notifs").innerHTML = last.length ? last.map(a=>`<div class="notif"><div class="ic">🍦</div><div><strong>Gelats Karbu</strong><p>${esc(a.m)}</p></div></div>`).join("") : `<p class="muted">Encara no tens avisos.</p>`;
     const pend = myReq && myReq.status === "pendiente";
     $("waitBox").hidden = !pend; $("scanCounter").hidden = pend;
-    if (pend){ const K = CARDS[myReq.type] || CARDS.cafe; $("waitTxt").textContent = `${K.icon} Esperant que la barra confirmi el segell de ${K.un}…`; }
+    if (pend){ const K = CARDS[myReq.type] || CARDS.cafe; const pr = myReq.kind === "premi";
+      $("waitTxt").textContent = pr ? `🎁 Esperant que la barra confirmi el teu ${K.un} de franc…` : `${K.icon} Esperant que la barra confirmi el segell de ${K.un}…`;
+      $("waitBox").querySelector("p").textContent = pr ? "Ensenya aquesta pantalla a la barra. Quan ho confirmin, el premi es descompta." : "Quan te l'acceptin, apareix a la targeta."; }
     $("ofToggle").textContent = me.ofertas ? "Ofertes: activades" : "Ofertes: desactivades";
   }
 
@@ -831,6 +839,12 @@
     try{ const j = await api("/api/request", { id:me.id, type }); myReq = j.req; renderCli(); toast(`${CARDS[type].icon} Segell demanat: espera que el confirmin a la barra`); }
     catch(x){ if (x.status === 410) forget("La teva targeta ja no existeix. Torna-la a crear."); else toast("Sense connexió: torna-ho a provar"); }
   }
+  async function requestRedeem(type){
+    if (!me) return;
+    try{ const j = await api("/api/request", { id:me.id, type, kind:"premi" }); myReq = j.req; renderCli(); toast("🎁 Premi demanat: ensenya la pantalla a la barra"); }
+    catch(x){ if (x.status === 410) forget("La teva targeta ja no existeix. Torna-la a crear."); else toast(x.status === 400 ? "Aquest premi ja no està disponible" : "Sense connexió: torna-ho a provar"); }
+  }
+  $("rewards").addEventListener("click", e => { const b = e.target.closest("[data-redeem]"); if (b && !b.disabled){ b.disabled = true; requestRedeem(b.dataset.redeem); } });
   function openPick(){ wantStamp = false; if (!me) return; $("pick").hidden = false; }
   $("pick").addEventListener("click", e => { const b = e.target.closest("[data-type]"); if (b){ $("pick").hidden = true; requestStamp(b.dataset.type); return; } if (e.target.id === "pick" || e.target.id === "pickX") $("pick").hidden = true; });
 
@@ -875,7 +889,9 @@
       gen = j.gen; me = j.client; myReq = j.req; saveCopy();
       if (!$("vCli").hidden && prevReq && prevReq.status === "pendiente" && myReq && myReq.id === prevReq.id && myReq.status === "aceptada") play(POP);
       if (!$("vCli").hidden && prevReq && prevReq.status === "pendiente" && myReq && myReq.id === prevReq.id && myReq.status !== "pendiente" && !phoneNotis())
-        pushNote(myReq.status === "aceptada" ? `${(CARDS[myReq.type]||CARDS.cafe).icon} +1 segell. Gràcies per venir!` : "No s'ha pogut confirmar el segell. Pregunta a la barra.");
+        pushNote(myReq.kind === "premi"
+          ? (myReq.status === "aceptada" ? `🎁 Premi bescanviat: ${(CARDS[myReq.type]||CARDS.cafe).premi.toLowerCase()}. Que vagi de gust!` : "No s'ha pogut bescanviar el premi. Pregunta a la barra.")
+          : (myReq.status === "aceptada" ? `${(CARDS[myReq.type]||CARDS.cafe).icon} +1 segell. Gràcies per venir!` : "No s'ha pogut confirmar el segell. Pregunta a la barra."));
       else if (seenAv && !phoneNotis()){ const nw = (me.avisos || []).filter(a => !prevAv.includes(a.id)); if (nw.length) pushNote(nw[nw.length-1].m); }
       seenAv = true; views(); renderCli(); ensurePush();
       if (wantStamp) openPick();
@@ -913,9 +929,11 @@
   function renderNeg(){
     if (!pnl || swiping) return;
     const pend = pnl.reqs;
-    $("reqs").innerHTML = `<h3>Segells per confirmar ${pend.length ? `<span class="count">${pend.length}</span>` : ""}</h3>` +
-      (pend.length ? `<p class="swipehint">Llisca → per acceptar · ← per rebutjar (o fes servir els botons)</p>` + pend.map(r => { const K = CARDS[r.type] || CARDS.cafe; return `<div class="reqwrap"><div class="under"><span class="a">✓ Acceptar</span><span class="r">Rebutjar ✕</span></div>
-        <div class="req" data-id="${esc(r.id)}"><div class="who"><b>${K.icon} ${esc(r.name)} · ${K.un}</b><span><span class="kind ${r.type}">${K.nom}</span>${ago(r.at)} · ${r.have % K.n}/${K.n}</span></div>
+    $("reqs").innerHTML = `<h3>Per confirmar ${pend.length ? `<span class="count">${pend.length}</span>` : ""}</h3>` +
+      (pend.length ? `<p class="swipehint">Llisca → per acceptar · ← per rebutjar (o fes servir els botons)</p>` + pend.map(r => { const K = CARDS[r.type] || CARDS.cafe, pr = r.kind === "premi"; return `<div class="reqwrap"><div class="under"><span class="a">✓ Acceptar</span><span class="r">Rebutjar ✕</span></div>
+        <div class="req${pr ? " premi" : ""}" data-id="${esc(r.id)}"><div class="who">${pr
+          ? `<b>🎁 ${esc(r.name)} · premi</b><span><span class="kind ${r.type}">${K.nom}</span>${ago(r.at)} · ${K.un} de franc · en té ${r.free}</span>`
+          : `<b>${K.icon} ${esc(r.name)} · ${K.un}</b><span><span class="kind ${r.type}">${K.nom}</span>${ago(r.at)} · ${r.have % K.n}/${K.n}</span>`}</div>
         <button class="btn okb" data-ok="${esc(r.id)}">Acceptar</button><button class="btn no" data-no="${esc(r.id)}">No</button></div></div>`; }).join("")
         : `<p class="muted" style="margin:6px 0 0;font-size:13.5px">No n'hi ha cap de pendent. Quan un client escanegi el QR del taulell, apareixerà aquí amb el producte i sonarà un avís.</p>`);
     $("reqs").querySelectorAll(".reqwrap").forEach(bindSwipe);
@@ -932,7 +950,8 @@
     try{ const j = await api(p, body, pin()); pnl = j; renderNeg(); if (okMsg) toast(typeof okMsg === "function" ? okMsg(j) : okMsg); return j; }
     catch(x){ if (x.status === 401){ ls.del("pin"); views(); toast("Torna a posar el PIN"); } else toast(x.message || "Sense connexió"); }
   }
-  function decide(id, ok){ try{ navigator.vibrate && navigator.vibrate(30); }catch(e){} return negCall("/api/neg/decide", { id, ok }, ok ? "Segell sumat 🍦" : "Sol·licitud rebutjada"); }
+  function decide(id, ok){ try{ navigator.vibrate && navigator.vibrate(30); }catch(e){} const r = pnl && pnl.reqs.find(x => x.id === id), pr = r && r.kind === "premi";
+    return negCall("/api/neg/decide", { id, ok }, ok ? (pr ? "Premi bescanviat 🎁" : "Segell sumat 🍦") : "Sol·licitud rebutjada"); }
   document.addEventListener("click", e => { const ok = e.target.closest("[data-ok]"), no = e.target.closest("[data-no]"); if (ok || no) decide(ok ? ok.dataset.ok : no.dataset.no, !!ok);
     const rd = e.target.closest("[data-rd]"); if (rd){ const [id, t] = rd.dataset.rd.split(":"); negCall("/api/neg/redeem", { id, type:t }, `🎁 Premi bescanviat: ${CARDS[t].premi.toLowerCase()}`); } });
   $("findQ").addEventListener("input", renderNeg);

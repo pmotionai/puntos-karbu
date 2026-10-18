@@ -91,7 +91,7 @@ function panel(){
   const mes = cs.reduce((a, c) => a + (c.last > now() - 30*DAY ? c.visits : 0), 0);
   const rep = cs.length ? Math.round(100 * cs.filter(c => c.visits >= 2).length / cs.length) : 0;
   return { ver, gen:DB.gen,
-    reqs: DB.reqs.filter(r => r.status === "pendiente").map(r => { const c = DB.clients[r.cid] || {}; return { ...r, name:c.name || "Client", have:(c.st || zero())[r.type] || 0 }; }),
+    reqs: DB.reqs.filter(r => r.status === "pendiente").map(r => { const c = DB.clients[r.cid] || {}; return { ...r, name:c.name || "Client", have:(c.st || zero())[r.type] || 0, free:(c.fr || zero())[r.type] || 0 }; }),
     clients: cs.sort((a, b) => (b.last || 0) - (a.last || 0)).map(pub),
     stats: { clientes:cs.length, visitasMes:mes, repiten:rep, conOfertas:cs.filter(c => c.ofertas).length } };
 }
@@ -124,17 +124,22 @@ http.createServer((req, res) => {
     }
     if (!c) return send(res, 410, { error:"No trobem la teva targeta" });
     const r = DB.reqs.filter(x => x.cid === c.id).slice(-1)[0];
-    send(res, 200, { gen:DB.gen, ver, client:pub(c), req:r ? { id:r.id, status:r.status, at:r.at, type:r.type } : null });
+    send(res, 200, { gen:DB.gen, ver, client:pub(c), req:r ? { id:r.id, status:r.status, at:r.at, type:r.type, kind:r.kind || "segell" } : null });
   });
+  // Sello o premio: el cliente lo pide desde su móvil y la barra lo acepta. El premio solo se descuenta al aceptarlo,
+  // así no se puede enseñar la misma pantalla dos veces.
   if (P === "/api/request" && POST) return readBody(req, b => {
     const c = b && DB.clients[b.id];
     if (!c) return send(res, 410, { error:"No trobem la teva targeta" });
-    const t = TYPES_OK(b.type);
-    let r = DB.reqs.find(x => x.cid === c.id && x.status === "pendiente");
-    if (r && r.type !== t){ r.type = t; bump(); }
-    if (!r){ r = { id:rid(6), cid:c.id, type:t, at:now(), status:"pendiente" }; DB.reqs.push(r); DB.reqs = DB.reqs.slice(-200); bump();
-      notifyNegocio({ title:"Nou segell per confirmar", body:`${CARDS[t].icon} ${c.name} demana un segell de ${CARDS[t].nom}. Toca per acceptar-lo.`, url:"/#negocio" }); }
-    send(res, 200, { req:{ id:r.id, status:r.status, at:r.at, type:r.type } });
+    const t = TYPES_OK(b.type), kind = b.kind === "premi" ? "premi" : "segell";
+    if (kind === "premi" && !((c.fr || zero())[t] > 0)) return send(res, 400, { error:"No tens cap premi d'aquesta targeta" });
+    let r = DB.reqs.find(x => x.cid === c.id && x.status === "pendiente"), avisar = !r;
+    if (r && (r.type !== t || (r.kind || "segell") !== kind)){ r.type = t; r.kind = kind; r.at = now(); bump(); avisar = true; }
+    if (!r){ r = { id:rid(6), cid:c.id, type:t, kind, at:now(), status:"pendiente" }; DB.reqs.push(r); DB.reqs = DB.reqs.slice(-200); bump(); }
+    if (avisar) notifyNegocio(kind === "premi"
+      ? { title:"Premi per bescanviar", body:`🎁 ${c.name} vol bescanviar ${CARDS[t].premi}. Toca per acceptar-ho.`, url:"/#negocio" }
+      : { title:"Nou segell per confirmar", body:`${CARDS[t].icon} ${c.name} demana un segell de ${CARDS[t].nom}. Toca per acceptar-lo.`, url:"/#negocio" });
+    send(res, 200, { req:{ id:r.id, status:r.status, at:r.at, type:r.type, kind:r.kind || "segell" } });
   });
   if (P === "/api/delete-me" && POST) return readBody(req, b => {     // derecho de supresión
     const c = b && DB.clients[b.id];
@@ -152,8 +157,11 @@ http.createServer((req, res) => {
       if (P === "/api/neg/decide"){
         const r = DB.reqs.find(x => x.id === b.id); const c = r && DB.clients[r.cid];
         if (!r || r.status !== "pendiente" || !c) return send(res, 404, { error:"Ja no està pendent" });
+        const premi = r.kind === "premi";
+        if (b.ok && premi && !redeem(c, r.type)){ r.status = "rechazada"; bump(); return send(res, 400, { error:"Aquest client ja no té el premi disponible" }); }
         r.status = b.ok ? "aceptada" : "rechazada"; bump();
-        if (b.ok) addStamp(c, r.type); else notifyClient(c.id, { title:"Gelats Karbu", body:"No hem pogut confirmar el segell. Pregunta a la barra.", url:"/#cliente" });
+        if (b.ok && !premi) addStamp(c, r.type);
+        if (!b.ok) notifyClient(c.id, { title:"Gelats Karbu", body:premi ? "No s'ha pogut bescanviar el premi. Pregunta a la barra." : "No hem pogut confirmar el segell. Pregunta a la barra.", url:"/#cliente" });
         return send(res, 200, panel());
       }
       if (P === "/api/neg/stamp"){ const c = DB.clients[b.id]; if (!c) return send(res, 404, { error:"Client no trobat" }); addStamp(c, b.type); return send(res, 200, panel()); }
