@@ -710,6 +710,7 @@
 
   /* ---------- Wallet (skill apple-design): pila, abrir con un toque, arrastrar abajo para cerrar ---------- */
   const PEEK = 70;                       // lo que asoma cada tarjeta en la pila
+  const PILE = 62;                       // lo que asoma cada tarjeta de abajo con una abierta
   const W = { el:{}, y:{}, sc:{}, sp:{}, busy:{}, sel:null, hSp:null, hBusy:false, h:0 };
   function ensureCards(){
     if (W.el.cafe) return;
@@ -735,10 +736,11 @@
     const T = {}, H = t => W.el[t].offsetHeight;
     if (!W.sel){ TY.forEach((t, i) => { T[t] = { y:i*PEEK, s:1, z:i+1 }; });
       return { T, h:(TY.length-1)*PEEK + H(TY[TY.length-1]) }; }
-    const top = H(W.sel), rest = TY.filter(t => t !== W.sel);
+    // en rueda: la siguiente justo debajo y la que estaba abierta, al final (todas a mano)
+    const i = TY.indexOf(W.sel), top = H(W.sel), rest = [1, 2].map(k => TY[(i + k) % TY.length]);
     T[W.sel] = { y:0, s:1, z:10 };
-    rest.forEach((t, k) => { T[t] = { y:top + 16 + k*12, s:.94 - k*.03, z:5 - k }; });
-    return { T, h:top + 16 + (rest.length-1)*12 + 46 };
+    rest.forEach((t, k) => { T[t] = { y:top + 16 + k*PILE, s:1, z:5 + k }; });
+    return { T, h:top + 16 + (rest.length-1)*PILE + PILE + 8 };
   }
   function walletLayout(animate, v, vt){
     if (!W.el.cafe) return;
