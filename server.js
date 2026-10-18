@@ -41,7 +41,7 @@ function redeem(c, type){
   const t = TYPES_OK(type); c.fr = c.fr || zero();
   if (!(c.fr[t] > 0)) return false;
   c.fr[t]--; c.free = Math.max(0, c.free - 1);
-  const m = `🎁 Has bescanviat ${CARDS[t].premi}. Que vagi de gust!`;
+  const m = `🎁 Que vagi de gust el teu ${CARDS[t].nom} de franc!`;
   addAviso(c, m); bump(); notifyClient(c.id, { title:"Gelats Karbu", body:m, url:"/#cliente" }); return true;
 }
 
@@ -137,7 +137,7 @@ http.createServer((req, res) => {
     if (r && (r.type !== t || (r.kind || "segell") !== kind)){ r.type = t; r.kind = kind; r.at = now(); bump(); avisar = true; }
     if (!r){ r = { id:rid(6), cid:c.id, type:t, kind, at:now(), status:"pendiente" }; DB.reqs.push(r); DB.reqs = DB.reqs.slice(-200); bump(); }
     if (avisar) notifyNegocio(kind === "premi"
-      ? { title:"Premi per bescanviar", body:`🎁 ${c.name} vol bescanviar ${CARDS[t].premi}. Toca per acceptar-ho.`, url:"/#negocio" }
+      ? { title:"Premi per entregar", body:`🎁 ${c.name} vol el seu ${CARDS[t].nom} de franc. Toca per acceptar-ho.`, url:"/#negocio" }
       : { title:"Nou segell per confirmar", body:`${CARDS[t].icon} ${c.name} demana un segell de ${CARDS[t].nom}. Toca per acceptar-lo.`, url:"/#negocio" });
     send(res, 200, { req:{ id:r.id, status:r.status, at:r.at, type:r.type, kind:r.kind || "segell" } });
   });
@@ -161,7 +161,7 @@ http.createServer((req, res) => {
         if (b.ok && premi && !redeem(c, r.type)){ r.status = "rechazada"; bump(); return send(res, 400, { error:"Aquest client ja no té el premi disponible" }); }
         r.status = b.ok ? "aceptada" : "rechazada"; bump();
         if (b.ok && !premi) addStamp(c, r.type);
-        if (!b.ok) notifyClient(c.id, { title:"Gelats Karbu", body:premi ? "No s'ha pogut bescanviar el premi. Pregunta a la barra." : "No hem pogut confirmar el segell. Pregunta a la barra.", url:"/#cliente" });
+        if (!b.ok) notifyClient(c.id, { title:"Gelats Karbu", body:premi ? "No s'ha pogut fer servir el premi. Pregunta a la barra." : "No hem pogut confirmar el segell. Pregunta a la barra.", url:"/#cliente" });
         return send(res, 200, panel());
       }
       if (P === "/api/neg/stamp"){ const c = DB.clients[b.id]; if (!c) return send(res, 404, { error:"Client no trobat" }); addStamp(c, b.type); return send(res, 200, panel()); }

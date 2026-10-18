@@ -811,7 +811,7 @@
       const el = W.el[t], box = el.querySelector(".stamps");
       if (!shown || shown[t] !== filled || !box.children.length) box.innerHTML = Array.from({length:K.n},(_,i)=>`<div class="stamp ${i<filled?'on':''}">${i<filled?K.icon:''}</div>`).join("");
       el.querySelector(".cntp").textContent = f > 0 ? "🎁 Premi!" : `${inC}/${K.n}`;
-      el.querySelector(".progress").textContent = f>0 ? `🎉 Tens ${f>1 ? f+" premis" : "un premi"}: ${K.premi.toLowerCase()}. Toca «Bescanviar» a Els teus premis.` : `Te'n falten ${K.n - inC} per ${K.premi.toLowerCase()}`;
+      el.querySelector(".progress").textContent = f>0 ? `🎉 Tens ${f>1 ? f+" premis" : "un premi"}: ${K.premi.toLowerCase()}. Toca «Fer-lo servir» a Els teus premis.` : `Te'n falten ${K.n - inC} per ${K.premi.toLowerCase()}`;
     });
     if (shown) TY.forEach(t => { if (fill[t] > shown[t]) [...W.el[t].querySelector(".stamps").children].slice(shown[t], fill[t]).forEach((el, j) => setTimeout(() => stampIn(el), j*90)); });
     shown = fill;
@@ -822,7 +822,7 @@
     $("cardNo").textContent = `TARGETA Nº ${me.card} · ${me.stamps} segell${me.stamps===1?"":"s"} en total`;
     const pendPremi = myReq && myReq.status === "pendiente" && myReq.kind === "premi";
     $("rewards").innerHTML = TY.map(t => { const K = CARDS[t], inC = st(me, t) % K.n, f = fr(me, t);
-      const go = f > 0 ? `<div class="rgo"><span class="pill ok">Disponible ×${f}</span><button class="rbtn" data-redeem="${t}" ${pendPremi ? "disabled" : ""}>🎁 Bescanviar</button></div>` : `<span class="pill">Falten ${K.n-inC}</span>`;
+      const go = f > 0 ? `<div class="rgo"><span class="pill ok">Disponible ×${f}</span><button class="rbtn" data-redeem="${t}" ${pendPremi ? "disabled" : ""}>🎁 Fer-lo servir</button></div>` : `<span class="pill">Falten ${K.n-inC}</span>`;
       return `<div class="reward"><div><b>${K.icon} ${K.premi}</b><br><span>Cada ${K.n} segells de ${K.un}</span></div>${go}</div>`; }).join("");
     const last = (me.avisos || []).slice(-3).reverse();
     $("notifs").innerHTML = last.length ? last.map(a=>`<div class="notif"><div class="ic">🍦</div><div><strong>Gelats Karbu</strong><p>${esc(a.m)}</p></div></div>`).join("") : `<p class="muted">Encara no tens avisos.</p>`;
@@ -890,7 +890,7 @@
       if (!$("vCli").hidden && prevReq && prevReq.status === "pendiente" && myReq && myReq.id === prevReq.id && myReq.status === "aceptada") play(POP);
       if (!$("vCli").hidden && prevReq && prevReq.status === "pendiente" && myReq && myReq.id === prevReq.id && myReq.status !== "pendiente" && !phoneNotis())
         pushNote(myReq.kind === "premi"
-          ? (myReq.status === "aceptada" ? `🎁 Premi bescanviat: ${(CARDS[myReq.type]||CARDS.cafe).premi.toLowerCase()}. Que vagi de gust!` : "No s'ha pogut bescanviar el premi. Pregunta a la barra.")
+          ? (myReq.status === "aceptada" ? `🎁 Que vagi de gust el teu ${(CARDS[myReq.type]||CARDS.cafe).un} de franc!` : "No s'ha pogut fer servir el premi. Pregunta a la barra.")
           : (myReq.status === "aceptada" ? `${(CARDS[myReq.type]||CARDS.cafe).icon} +1 segell. Gràcies per venir!` : "No s'ha pogut confirmar el segell. Pregunta a la barra."));
       else if (seenAv && !phoneNotis()){ const nw = (me.avisos || []).filter(a => !prevAv.includes(a.id)); if (nw.length) pushNote(nw[nw.length-1].m); }
       seenAv = true; views(); renderCli(); ensurePush();
@@ -940,7 +940,7 @@
     const s = pnl.stats; $("sCli").textContent = s.clientes; $("sVis").textContent = s.visitasMes; $("sRep").textContent = s.repiten + "%"; $("sOf").textContent = s.conOfertas;
     const L = pnl.clients;
     $("noCli").hidden = L.length > 0;
-    $("tbl").innerHTML = L.map(c=>`<tr><td><b>${esc(c.name)}</b>${c.canal==="mostrador"?'<span class="tag">sense mòbil</span>':""}<small>${c.tel ? esc(c.tel) + " · " : ""}nº ${esc(c.card)}${c.ofertas ? " · ofertes ✓" : ""}</small></td><td>${TY.map(t => `<div class="cnt">${CARDS[t].icon} <b>${st(c,t) % CARDS[t].n}</b>/${CARDS[t].n}${fr(c,t) ? ` <button class="rd" data-rd="${esc(c.id)}:${t}">🎁 Bescanviar${fr(c,t)>1?" ×"+fr(c,t):""}</button>` : ""}</div>`).join("")}</td><td>${c.visits}</td><td>${ago(c.last)}</td></tr>`).join("");
+    $("tbl").innerHTML = L.map(c=>`<tr><td><b>${esc(c.name)}</b>${c.canal==="mostrador"?'<span class="tag">sense mòbil</span>':""}<small>${c.tel ? esc(c.tel) + " · " : ""}nº ${esc(c.card)}${c.ofertas ? " · ofertes ✓" : ""}</small></td><td>${TY.map(t => `<div class="cnt">${CARDS[t].icon} <b>${st(c,t) % CARDS[t].n}</b>/${CARDS[t].n}${fr(c,t) ? ` <button class="rd" data-rd="${esc(c.id)}:${t}">🎁 Entregar premi${fr(c,t)>1?" ×"+fr(c,t):""}</button>` : ""}</div>`).join("")}</td><td>${c.visits}</td><td>${ago(c.last)}</td></tr>`).join("");
     const sel = $("who"), v = sel.value, q = ($("findQ").value||"").trim().toLowerCase().replace(/\s/g,"");
     const F = L.filter(c => !q || (c.name.toLowerCase().replace(/\s/g,"") + (c.tel||"") + c.card).includes(q));
     sel.innerHTML = F.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.tel ? " · " + esc(c.tel) : ""} · nº ${esc(c.card)}</option>`).join("") || `<option value="" disabled selected>${L.length ? "Ningú amb «" + esc(q) + "»" : "Encara no hi ha clients"}</option>`;
@@ -951,9 +951,9 @@
     catch(x){ if (x.status === 401){ ls.del("pin"); views(); toast("Torna a posar el PIN"); } else toast(x.message || "Sense connexió"); }
   }
   function decide(id, ok){ try{ navigator.vibrate && navigator.vibrate(30); }catch(e){} const r = pnl && pnl.reqs.find(x => x.id === id), pr = r && r.kind === "premi";
-    return negCall("/api/neg/decide", { id, ok }, ok ? (pr ? "Premi bescanviat 🎁" : "Segell sumat 🍦") : "Sol·licitud rebutjada"); }
+    return negCall("/api/neg/decide", { id, ok }, ok ? (pr ? "Premi entregat 🎁" : "Segell sumat 🍦") : "Sol·licitud rebutjada"); }
   document.addEventListener("click", e => { const ok = e.target.closest("[data-ok]"), no = e.target.closest("[data-no]"); if (ok || no) decide(ok ? ok.dataset.ok : no.dataset.no, !!ok);
-    const rd = e.target.closest("[data-rd]"); if (rd){ const [id, t] = rd.dataset.rd.split(":"); negCall("/api/neg/redeem", { id, type:t }, `🎁 Premi bescanviat: ${CARDS[t].premi.toLowerCase()}`); } });
+    const rd = e.target.closest("[data-rd]"); if (rd){ const [id, t] = rd.dataset.rd.split(":"); negCall("/api/neg/redeem", { id, type:t }, `🎁 Premi entregat: ${CARDS[t].premi.toLowerCase()}`); } });
   $("findQ").addEventListener("input", renderNeg);
   $("addStamp").onclick = () => { const id = $("who").value; if (!id) return toast("Busca primer el client"); const c = pnl.clients.find(x => x.id === id), t = $("whoType").value; negCall("/api/neg/stamp", { id, type:t }, `${CARDS[t].icon} Segell sumat a ${c ? c.name : "el client"}`); };
   $("newCliBtn").onclick = () => { $("newCli").hidden = false; $("newCliBtn").hidden = true; $("ncDone").hidden = true; $("ncName").focus(); };
