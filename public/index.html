@@ -112,8 +112,16 @@
   .btn:disabled{opacity:.35; cursor:default;}
   @media (prefers-reduced-motion:reduce){ .finder .line{animation:none; top:50%;} }
   /* ===== Karbu: tres targetes, selector de producte i carta ===== */
-  .cards{display:flex; flex-direction:column; gap:14px; margin:16px 0;}
-  .cards .card{margin:0; padding:18px 18px 16px;}
+  .cards{position:relative; margin:10px -10px 18px; padding:0 10px; height:420px; overflow:hidden;}
+  .cards.dragging{overflow:visible;}
+  .cards .card{position:absolute; top:0; left:10px; right:10px; margin:0; padding:18px 18px 16px; transform-origin:50% 0; will-change:transform;
+               touch-action:pan-y; -webkit-tap-highlight-color:transparent; cursor:pointer; user-select:none; -webkit-user-select:none;
+               box-shadow:0 -1px 0 rgba(255,255,255,.18) inset, 0 10px 26px rgba(0,0,0,.18);}
+  .cards .card.sel{touch-action:pan-down;}
+  .cards .card .press{position:absolute; inset:0; border-radius:inherit; background:#000; opacity:0; pointer-events:none; transition:opacity 80ms ease-out;}
+  .cards .card.down .press{opacity:.07;}
+  .card .cntp{font-size:13px; letter-spacing:.04em; background:rgba(255,255,255,.18); color:#fff; padding:4px 10px; border-radius:99px; opacity:1; font-weight:600;}
+  .walletHint{font-size:12.5px; color:var(--soft); margin:2px 0 0; text-align:center; min-height:16px;}
   .card.cafe{background:var(--cafe); box-shadow:0 14px 30px rgba(75,52,40,.25);}
   .card.bubble{background:var(--bubble);}
   .card.gelat{background:var(--gelat); box-shadow:0 14px 30px rgba(201,86,122,.25);}
@@ -297,13 +305,14 @@
     <div class="hello">
       <div><div class="brandline"><img src="/logo.png" alt=""><span class="script" style="font-size:20px">Gelats Karbu</span></div><h1 id="hi" style="margin-top:8px">Hola 🍦</h1>
       <p class="muted">Les teves tres targetes, sempre al mòbil · La Riera 67, Mataró.</p></div>
-      <a class="igmini" id="igTop" href="https://www.instagram.com/gelatskarbu/" target="_blank" rel="noopener" aria-label="Segueix-nos a Instagram">
+      <a class="igmini" id="igTop" href="https://www.instagram.com/gelatskarbu/" rel="noopener" aria-label="Segueix-nos a Instagram">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
         <span>Segueix-nos</span>
       </a>
     </div>
 
     <div class="cards" id="cards"></div>
+    <p class="walletHint" id="wHint">Toca una targeta per obrir-la</p>
     <div class="cardno" id="cardNo" style="color:var(--soft);text-align:center;margin:-4px 0 12px"></div>
 
     <button class="scanbtn" id="scanCounter">
@@ -353,11 +362,11 @@
     </div>
 
     <div class="section follow">
-      <a class="igbtn" id="igLink" href="https://www.instagram.com/gelatskarbu/" target="_blank" rel="noopener">
+      <a class="igbtn" id="igLink" href="https://www.instagram.com/gelatskarbu/" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
         <span><b>Segueix-nos a Instagram</b><br><small>@gelatskarbu · novetats i sabors nous</small></span>
       </a>
-      <a class="igbtn rev" href="https://www.google.com/maps/search/?api=1&amp;query=Helados%20Karbu%20La%20Riera%2067%20Matar%C3%B3" target="_blank" rel="noopener" id="revLink2">
+      <a class="igbtn rev" href="https://www.google.com/maps/search/?api=1&amp;query=Helados%20Karbu%20La%20Riera%2067%20Matar%C3%B3" rel="noopener" id="revLink2">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>
         <span><b>Deixa'ns una ressenya a Google</b><br><small>S'obre Google Maps · toca «Escriu una ressenya»</small></span>
       </a>
@@ -374,7 +383,7 @@
     <div class="stars" aria-hidden="true">★★★★★</div>
     <h3 id="revT">T'ha agradat?</h3>
     <p class="muted">Una ressenya a Google ens ajuda que més gent de Mataró ens conegui. S'obre Google Maps: toca «Escriu una ressenya».</p>
-    <div class="row2"><button class="btn light" id="revNo">Ara no</button><a class="btn" id="revYes" href="https://www.google.com/maps/search/?api=1&amp;query=Helados%20Karbu%20La%20Riera%2067%20Matar%C3%B3" target="_blank" rel="noopener">Deixar ressenya</a></div>
+    <div class="row2"><button class="btn light" id="revNo">Ara no</button><a class="btn" id="revYes" href="https://www.google.com/maps/search/?api=1&amp;query=Helados%20Karbu%20La%20Riera%2067%20Matar%C3%B3" rel="noopener">Deixar ressenya</a></div>
   </div>
 
   <!-- ===== NEGOCIO ===== -->
@@ -584,7 +593,7 @@
     show(mode==="negocio" ? "neg" : "cli", true);
   }
   $("tCli").addEventListener("pointerdown", ()=>show("cli")); $("tNeg").addEventListener("pointerdown", ()=>show("neg"));
-  $("tCli").onclick = ()=>show("cli"); $("tNeg").onclick = ()=>show("neg");
+  $("tCli").onclick = ()=>{ show("cli"); setTimeout(() => walletLayout(false), 30); }; $("tNeg").onclick = ()=>show("neg");
   addEventListener("hashchange", applyMode);
 
   /* ---------- QR: el del mostrador es real (apunta a esta tarjeta) ---------- */
@@ -699,16 +708,87 @@
   drag(RC, "y", { start:() => { rcSp && rcSp.stop(); return rcY; }, move:y => rcSet(y < 0 ? -rubber(-y, 60) : y),
     end:v => { if (rcY + project(v) > RC.offsetHeight/2){ ls.set("revAfter", String((me ? me.stamps : 0) + 5)); hideReview(v); } else rcTo(0, v); } });
 
+  /* ---------- Wallet (skill apple-design): pila, abrir con un toque, arrastrar abajo para cerrar ---------- */
+  const PEEK = 70;                       // lo que asoma cada tarjeta en la pila
+  const W = { el:{}, y:{}, sc:{}, sp:{}, busy:{}, sel:null, hSp:null, hBusy:false, h:0 };
+  function ensureCards(){
+    if (W.el.cafe) return;
+    const box = $("cards");
+    TY.forEach(t => { const K = CARDS[t], d = document.createElement("div");
+      d.className = "card " + t; d.dataset.t = t; d.setAttribute("role", "button"); d.setAttribute("aria-label", "Targeta de " + K.nom);
+      d.innerHTML = `<div class="card-head"><div class="ttl"><span class="em">${K.icon}</span><div><h2>${K.nom}</h2><small>${K.n} segells = premi</small></div></div><span class="cntp">0/${K.n}</span></div>
+        <div class="stamps n${K.n}" data-t="${t}"></div><div class="progress"></div><i class="press"></i>`;
+      box.appendChild(d); W.el[t] = d; W.y[t] = TY.indexOf(t) * PEEK; W.sc[t] = 1; paint(t); bindCard(d, t); });
+  }
+  function paint(t){ W.el[t].style.transform = `translate3d(0,${W.y[t]}px,0) scale(${W.sc[t]})`; }
+  function springCard(t, y, sc, v, bouncy){
+    const o = W.sp[t] || {}; o.y && o.y.stop(); o.s && o.s.stop();
+    const d = bouncy ? .82 : 1; W.busy[t] = true;
+    W.sp[t] = { y:spring({ from:W.y[t], to:y, v:v||0, damping:d, response:.42, update:x => { W.y[t] = x; paint(t); }, done:() => { W.busy[t] = false; } }),
+                s:spring({ from:W.sc[t], to:sc, v:0, damping:1, response:.42, update:x => { W.sc[t] = x; paint(t); } }) };
+  }
+  function boxTo(h, instant){
+    const box = $("cards"); if (instant && W.hBusy) return; if (instant || !W.h){ W.h = h; box.style.height = h + "px"; return; }
+    W.hSp && W.hSp.stop(); W.hBusy = true; W.hSp = spring({ from:W.h, to:h, damping:1, response:.42, update:x => { W.h = x; box.style.height = x + "px"; }, done:() => { W.hBusy = false; } });
+  }
+  function targets(){
+    const T = {}, H = t => W.el[t].offsetHeight;
+    if (!W.sel){ TY.forEach((t, i) => { T[t] = { y:i*PEEK, s:1, z:i+1 }; });
+      return { T, h:(TY.length-1)*PEEK + H(TY[TY.length-1]) }; }
+    const top = H(W.sel), rest = TY.filter(t => t !== W.sel);
+    T[W.sel] = { y:0, s:1, z:10 };
+    rest.forEach((t, k) => { T[t] = { y:top + 16 + k*12, s:.94 - k*.03, z:5 - k }; });
+    return { T, h:top + 16 + (rest.length-1)*12 + 46 };
+  }
+  function walletLayout(animate, v, vt){
+    if (!W.el.cafe) return;
+    const { T, h } = targets();
+    TY.forEach(t => { const el = W.el[t]; el.style.zIndex = T[t].z; el.classList.toggle("sel", W.sel === t);
+      if (animate) springCard(t, T[t].y, T[t].s, t === vt ? v : 0, !!(v && t === vt)); else if (!W.busy[t] && !(W.drag && W.sel === t)){ W.y[t] = T[t].y; W.sc[t] = T[t].s; paint(t); } });
+    boxTo(h, !animate);
+    $("wHint").textContent = W.sel ? "Llisca cap avall o toca-la per tancar-la" : "Toca una targeta per obrir-la";
+  }
+  function select(t, v){
+    W.sel = W.sel === t ? null : t;
+    try{ navigator.vibrate && navigator.vibrate(8); }catch(e){}
+    walletLayout(true, v, t);
+  }
+  function bindCard(el, t){
+    let down = false, sx = 0, sy = 0;
+    el.addEventListener("pointerdown", e => { down = true; sx = e.clientX; sy = e.clientY; el.classList.add("down"); });   // respuesta inmediata al pulsar
+    const up = () => { el.classList.remove("down"); };
+    el.addEventListener("pointerleave", up); el.addEventListener("pointercancel", () => { down = false; up(); });
+    el.addEventListener("pointerup", e => { up(); if (!down) return; down = false;
+      if (dragH.moved) return; if (Math.hypot(e.clientX - sx, e.clientY - sy) > 10) return;
+      if (W.sel && W.sel !== t){ W.sel = null; select(t); return; }
+      select(t); });
+    // arrastrar hacia abajo la tarjeta abierta: la sigue 1:1 y, al soltar, decide con la velocidad proyectada
+    const dragH = drag(el, "y", {
+      start:() => { if (W.sel !== t) return W.y[t]; W.drag = true; $("cards").classList.add("dragging"); W.sp[t] && W.sp[t].y.stop(); return W.y[t]; },
+      move:y => { if (W.sel !== t) return; W.y[t] = y < 0 ? -rubber(-y, 60) : y; paint(t); el.classList.remove("down"); },
+      cancel:() => { W.drag = false; $("cards").classList.remove("dragging"); },
+      end:v => { $("cards").classList.remove("dragging"); if (W.sel !== t){ W.drag = false; return; } W.drag = false;
+        const land = W.y[t] + project(v);
+        if (land > el.offsetHeight * .35) { W.sel = null; walletLayout(true, v, t); }
+        else springCard(t, 0, 1, v, true); }
+    });
+  }
+  addEventListener("resize", () => walletLayout(false));
+
   function renderCli(){
     if (!me) return;
     $("hi").textContent = `Hola, ${me.name} 🍦`;
+    ensureCards();
     const fill = {};
-    $("cards").innerHTML = TY.map(t => { const K = CARDS[t], s0 = st(me, t), inC = s0 % K.n, f = fr(me, t), filled = inC === 0 && s0 > 0 && f > 0 ? K.n : inC; fill[t] = filled;
-      return `<div class="card ${t}"><div class="card-head"><div class="ttl"><span class="em">${K.icon}</span><div><h2>${K.nom}</h2><small>${K.n} segells = premi</small></div></div><img class="logo" src="/logo.png" alt="" style="height:38px;width:38px;margin:0"></div>
-        <div class="stamps n${K.n}" data-t="${t}">${Array.from({length:K.n},(_,i)=>`<div class="stamp ${i<filled?'on':''}">${i<filled?K.icon:''}</div>`).join("")}</div>
-        <div class="progress">${f>0 ? `🎉 Tens ${f>1 ? f+" premis" : "un premi"}: ${K.premi.toLowerCase()}. Demana'l a la barra!` : `Te'n falten ${K.n - inC} per ${K.premi.toLowerCase()}`}</div></div>`; }).join("");
-    if (shown) TY.forEach(t => { if (fill[t] > shown[t]) [...document.querySelector(`.stamps[data-t="${t}"]`).children].slice(shown[t], fill[t]).forEach((el, j) => setTimeout(() => stampIn(el), j*90)); });
+    TY.forEach(t => { const K = CARDS[t], s0 = st(me, t), inC = s0 % K.n, f = fr(me, t), filled = inC === 0 && s0 > 0 && f > 0 ? K.n : inC; fill[t] = filled;
+      const el = W.el[t], box = el.querySelector(".stamps");
+      if (!shown || shown[t] !== filled || !box.children.length) box.innerHTML = Array.from({length:K.n},(_,i)=>`<div class="stamp ${i<filled?'on':''}">${i<filled?K.icon:''}</div>`).join("");
+      el.querySelector(".cntp").textContent = f > 0 ? "🎁 Premi!" : `${inC}/${K.n}`;
+      el.querySelector(".progress").textContent = f>0 ? `🎉 Tens ${f>1 ? f+" premis" : "un premi"}: ${K.premi.toLowerCase()}. Demana'l a la barra!` : `Te'n falten ${K.n - inC} per ${K.premi.toLowerCase()}`;
+    });
+    if (shown) TY.forEach(t => { if (fill[t] > shown[t]) [...W.el[t].querySelector(".stamps").children].slice(shown[t], fill[t]).forEach((el, j) => setTimeout(() => stampIn(el), j*90)); });
     shown = fill;
+    walletLayout(false);
     const seen = +ls.get("seenStamps") || 0;
     if ((seen && me.stamps > seen) || (fromPush && !maybeAskReview.done)){ maybeAskReview.done = true; maybeAskReview(me.stamps); }
     if (me.stamps !== seen) ls.set("seenStamps", String(me.stamps));
